@@ -22,7 +22,13 @@ up:
 	docker-compose up -d
 
 logs:
-	docker-compose logs -f --tail=100 ckan
+	docker-compose logs -f --tail=100 web
+
+logs-web:
+	docker-compose logs -f --tail=100 web
+
+logs-api:
+	docker-compose logs -f --tail=100 api
 
 logs-nginx:
 	docker-compose logs -f --tail=100 nginx-proxy

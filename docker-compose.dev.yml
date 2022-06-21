@@ -1,6 +1,7 @@
 version: '3.4'
 volumes:
   solr-data:
+  le-data:
   # index_test_solr-data:
   #   external: true
       
@@ -46,6 +47,7 @@ services:
       - "./nginx/html:/usr/share/nginx/html"
       - "./nginx/htpasswd:/etc/nginx/htpasswd"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "le-data:/etc/acme.sh"
     depends_on:
       - nginx-proxy
 
@@ -64,6 +66,35 @@ services:
   #     - VIRTUAL_PROTO=uwsgi
   #     - LETSENCRYPT_HOST=${HOST}
   #     - LETSENCRYPT_EMAIL="dev@derilinx.com"
+
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    networks:
+      default:
+      solr:
+    environment:
+      - SOLR_URL=http://solr:8983/solr/ckan
+      - VIRTUAL_HOST=api.${HOST}
+      - VIRTUAL_PROTO=http
+      - LETSENCRYPT_HOST=api.${HOST}
+      - LETSENCRYPT_EMAIL="dev@derilinx.com"
+
+  web:
+    build:
+      context: ./frontend/frontend
+      dockerfile: Dockerfile
+    networks:
+      default:
+    environment:
+      - REACT_APP_DATA_SERVICE_URL=https://api.${HOST}
+      - VIRTUAL_HOST=${HOST}
+      - VIRTUAL_PROTO=http
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=${HOST}
+      - LETSENCRYPT_EMAIL="dev@derilinx.com"
 
   solr:
     image: "repository.staging.derilinx.com/solr_8.8:$IMAGE_TAG"
