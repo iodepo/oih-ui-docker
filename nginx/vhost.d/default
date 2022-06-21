@@ -1,0 +1,8 @@
+
+# http basic auth blocks
+# See conf.d/proxy.conf for ip whitelist
+# use the same config for all of the staging servers
+auth_basic      $basic_auth_enable;
+auth_basic_user_file    /etc/nginx/htpasswd/staging.derilinx.com;
+
+

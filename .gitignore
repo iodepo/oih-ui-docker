@@ -1,0 +1,17 @@
+.env
+baseimage-docker-master
+master.tar.gz
+*.idea
+node_modules/*
+
+etc/.htpasswd
+*.DS_Store
+start.sh
+/.projectile
+nginx/ssl/
+*~
+backups-data
+j/
+
+\#*
+.#*

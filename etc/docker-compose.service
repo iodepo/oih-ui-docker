@@ -1,0 +1,27 @@
+##
+##  Installation --
+##
+## copy this file to /etc/systemd/system/docker-compose.service
+## sudo systemctl enable docker-compose.service
+##
+## this should work on ubuntu 16.04
+
+[Unit]
+Description=Docker-Compose Runtime
+After=docker.service
+Wants=docker.service
+Requires=docker.service
+
+[Service]
+#Restart=always
+
+##
+## Note -- set the path to the environment file below,
+## as well as the path to the docker-compose file.
+##
+EnvironmentFile=/home/ckan/ckan-docker-compose/.env
+ExecStart=/usr/local/bin/docker-compose -f /home/ckan/ckan-docker-compose/docker-compose.yml up
+ExecStop=/usr/local/bin/docker-compose -f /home/ckan/ckan-docker-compose/docker-compose.yml down
+
+[Install]
+WantedBy=default.target

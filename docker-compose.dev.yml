@@ -1,0 +1,61 @@
+version: '3.4'
+volumes:
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
+  solr:
+    internal: true
+services:
+  nginx-proxy:
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+    image: "repository.staging.derilinx.com/nginx-proxy:$IMAGE_TAG"
+    networks:
+      default:
+        aliases:
+          - $HOST
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./nginx/conf.d/proxy.conf:/etc/nginx/conf.d/proxy.conf"
+      - "./nginx/vhost.d:/etc/nginx/vhost.d"
+      - "./nginx/ssl/certs:/etc/nginx/certs"
+      - "./nginx/html:/usr/share/nginx/html"
+      - "./nginx/htpasswd:/etc/nginx/htpasswd"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+  letsencrypt-nginx-proxy-companion:
+    image: "repository.staging.derilinx.com/letsencrypt-nginx-proxy-companion:$IMAGE_TAG"
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - "./nginx/conf.d/proxy.conf:/etc/nginx/conf.d/proxy.conf"
+      - "./nginx/vhost.d:/etc/nginx/vhost.d"
+      - "./nginx/ssl/certs:/etc/nginx/certs"
+      - "./nginx/html:/usr/share/nginx/html"
+      - "./nginx/htpasswd:/etc/nginx/htpasswd"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    depends_on:
+      - nginx-proxy
+  webservice:
+    restart: on-failure
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+    networks:
+      default:
+      solr:
+    environment:
+      - VIRTUAL_HOST=${HOST}
+      - VIRTUAL_PROTO=uwsgi
+      - LETSENCRYPT_HOST=${HOST}
+      - LETSENCRYPT_EMAIL="dev@derilinx.com"
+
