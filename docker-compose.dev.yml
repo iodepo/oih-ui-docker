@@ -1,5 +1,9 @@
 version: '3.4'
 volumes:
+  solr-data:
+  # index_test_solr-data:
+  #   external: true
+      
 networks:
   default:
     driver: bridge
@@ -44,18 +48,36 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     depends_on:
       - nginx-proxy
-  webservice:
-    restart: on-failure
+
+
+  # webservice:
+  #   restart: on-failure
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: 50m
+  #   networks:
+  #     default:
+  #     solr:
+  #   environment:
+  #     - VIRTUAL_HOST=${HOST}
+  #     - VIRTUAL_PROTO=uwsgi
+  #     - LETSENCRYPT_HOST=${HOST}
+  #     - LETSENCRYPT_EMAIL="dev@derilinx.com"
+
+  solr:
+    image: "repository.staging.derilinx.com/solr_8.8:$IMAGE_TAG"
     logging:
       driver: "json-file"
       options:
         max-size: 50m
     networks:
-      default:
       solr:
     environment:
-      - VIRTUAL_HOST=${HOST}
-      - VIRTUAL_PROTO=uwsgi
-      - LETSENCRYPT_HOST=${HOST}
-      - LETSENCRYPT_EMAIL="dev@derilinx.com"
+      - SOLR_JAVA_MEM=-Xms1g -Xmx1g
+      - SOLR_OPTS=-Dlog4j2.formatMsgNoLookups=true
+    volumes:
+      - "./indexer/solr:/var/solr/data/ckan/"
+      - solr-data:/var/solr/data/ckan/data:rw
+#      - index_test_solr-data:/tmp/old-data
 
