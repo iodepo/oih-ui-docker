@@ -27,6 +27,9 @@ logs:
 logs-web:
 	docker-compose logs -f --tail=100 web
 
+logs-solr:
+	docker-compose logs -f --tail=100 solr
+
 logs-api:
 	docker-compose logs -f --tail=100 api
 

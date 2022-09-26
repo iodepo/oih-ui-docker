@@ -3,15 +3,18 @@ volumes:
   solr-data:
   le-data:
   # index_test_solr-data:
-  #   external: true
-      
+  #    external: true
+
+
 networks:
   default:
     driver: bridge
+    # this is only required in openvswitch networks.
     driver_opts:
       com.docker.network.driver.mtu: 1400
   solr:
     internal: true
+
 services:
   nginx-proxy:
     restart: on-failure
@@ -19,7 +22,7 @@ services:
       driver: "json-file"
       options:
         max-size: 50m
-    image: "repository.staging.derilinx.com/nginx-proxy:$IMAGE_TAG"
+    image: "nginxproxy/nginx-proxy:latest"
     networks:
       default:
         aliases:
@@ -37,7 +40,7 @@ services:
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
   letsencrypt-nginx-proxy-companion:
-    image: "repository.staging.derilinx.com/letsencrypt-nginx-proxy-companion:$IMAGE_TAG"
+    image: "nginxproxy/acme-companion"
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
     volumes:
@@ -51,23 +54,6 @@ services:
     depends_on:
       - nginx-proxy
 
-
-  # webservice:
-  #   restart: on-failure
-  #   logging:
-  #     driver: "json-file"
-  #     options:
-  #       max-size: 50m
-  #   networks:
-  #     default:
-  #     solr:
-  #   environment:
-  #     - VIRTUAL_HOST=${HOST}
-  #     - VIRTUAL_PROTO=uwsgi
-  #     - LETSENCRYPT_HOST=${HOST}
-  #     - LETSENCRYPT_EMAIL="dev@derilinx.com"
-
-
   api:
     build:
       context: ./api/api
@@ -76,7 +62,6 @@ services:
       default:
       solr:
     volumes:
-      # that's a lot of api
       - "./api/api/api:/usr/src/app/api"
     environment:
       - SOLR_URL=http://solr:8983/solr/ckan
@@ -103,7 +88,7 @@ services:
       - "./frontend/frontend/src:/app/src"
 
   solr:
-    image: "repository.staging.derilinx.com/solr_8.8:$IMAGE_TAG"
+    image: "solr:8"
     logging:
       driver: "json-file"
       options:
@@ -116,6 +101,6 @@ services:
     volumes:
       - "./api/solr:/var/solr/data/ckan/"
       - solr-data:/var/solr/data/ckan/data:rw
-#      - index_test_solr-data:/tmp/old-data
+#      - index_test_solr-data:/tmp/old-data:ro
 
 #
