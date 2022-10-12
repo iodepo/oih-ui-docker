@@ -1,4 +1,4 @@
-.PHONY: init help core down up logs 
+.PHONY: init help core down up logs logs-web logs-api logs-solr logs-nginx logs-le initdb-solr update-images nginx-restart
 
 include .env
 export $(shell sed 's/=.*//' .env)
@@ -6,12 +6,18 @@ export $(shell sed 's/=.*//' .env)
 help:
 	@echo "Help: "
 	@echo "init: submodule initialization and updates"
-	@echo "core: builds the derilinx_ckan core image "
 	@echo "down: brings the docker-compose set down "
 	@echo "up: brings the docker-compose set up "
-	@echo "logs: tails ckan logs "
-init:
+	@echo "logs | logs-web: tails webserver logs "
+	@echo "logs-solr: tails solr logs "
+	@echo "logs-api: tails api logs "
+	@echo "logs-nginx: tails nginx logs "
+	@echo "logs-le: tails nginx lets-encrypt "
+	@echo "initdb-solr: prepares the solr database "
+
+init: .env
 	git submodule update --init --recursive
+	$(MAKE) initdb-solr
 
 core: update-images
 
