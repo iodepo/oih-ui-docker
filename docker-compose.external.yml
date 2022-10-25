@@ -87,6 +87,20 @@ services:
       - "./frontend/frontend/public:/app/public"
       - "./frontend/frontend/src:/app/src"
 
+  indexer:
+    build:
+      context: ./indexer/indexer
+      dockerfile: Dockerfile
+    networks:
+      solr:
+    volumes:
+      - "./indexer/indexer:/usr/src/app"
+      - "./source-data:/opt/data"
+    environment:
+      - SOLR_URL=http://solr:8983/solr/ckan
+      # needs to match the volume mount
+      - DATA_DIR=/opt/data
+
   solr:
     image: "solr:8"
     logging:
