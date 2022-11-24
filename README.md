@@ -12,14 +12,9 @@ It includes
 ### Get the code
 
 To install the complete interface
-- clone this repository where you think everything should reside
+- clone this repository and all the submodules where you think everything should reside
 ```
-git clone git@github.com:iodepo/oih-ui-docker.git /data/oih-ui-docker
-```
-- get all the submodules
-```
-cd /data/oih-ui-docker
-git submodule update --init --recursive
+git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git /data/oih-ui-docker
 ```
 
 ### Configure 
