@@ -1,4 +1,4 @@
-## Single Machine OIH install
+# Single Machine OIH install
 
 This is a docker-compose wrapper providing all of the services for the OIH search engine on one docker-compose stack for development or staging deployment.
 
@@ -7,9 +7,9 @@ It includes
 * A lets-encrypt sidecar for nginx-proxy to provide for certificates. If you are running on a local/non-internet accessible domain, this will silently fall back to HTTP rather than HTTPS.
 * Container definitons for the API, web, and solr instances.
 
-### Installation
+## Installation
 
-#### Get the code
+### Get the code
 
 To install the complete interface
 - clone this repository where you think everything should reside
@@ -22,7 +22,7 @@ cd /data/oih-ui-docker
 git submodule update --init --recursive
 ```
 
-#### Configure 
+### Configure 
 
 To make the env file we need you can either make it:
 
@@ -79,7 +79,7 @@ docker-compose run -u root solr chown solr:solr /var/solr/data/ckan/data
 Creating oih-ui-docker_solr_run ... done
 ```
 
-#### Put everything together
+### Put everything together
 ```
 make up
 ```
