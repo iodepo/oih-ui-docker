@@ -7,29 +7,83 @@ It includes
 * A lets-encrypt sidecar for nginx-proxy to provide for certificates. If you are running on a local/non-internet accessible domain, this will silently fall back to HTTP rather than HTTPS.
 * Container definitons for the API, web, and solr instances.
 
-Running `make` will give a list of makefile commands of interest.
+### Installation
 
+#### Get the code
 
-To get started:
+To install the complete interface
+- clone this repository where you think everything should reside
+```
+git clone git@github.com:iodepo/oih-ui-docker.git /data/oih-ui-docker
+```
+- get all the submodules
+```
+cd /data/oih-ui-docker
+git submodule update --init --recursive
+```
+
+#### Configure 
+
+To make the env file we need you can either make it:
 
 ```
-si:oih-ui-docker erics$ make init
-Makefile:3: .env: No such file or directory
-sed: .env: No such file or directory
+cd /data/oih-ui-docker
+make
+```
+
+or you can rename the env.sample file to .env and change the content.
+
+Running `make` will give a list of makefile commands of interest.
+```
+cd /data/oih-ui-docker
+make
+
+make
+sed: can't read .env: No such file or directory
 ./make_env.py
 
 Making the ENV file...
 
-Hostname? oih.localhost
-git submodule update --init --recursive
-/Applications/Xcode.app/Contents/Developer/usr/bin/make initdb-solr
-docker-compose run -u root solr chown solr:solr /var/solr/data/ckan/data
-Creating oih-ui-docker_solr_run ... done
-si:oih-ui-docker erics$ make up
+Hostname? stag.search.oceaninfohub.org
+Help: 
+init: submodule initialization and updates
+down: brings the docker-compose set down 
+up: brings the docker-compose set up 
+logs | logs-web: tails webserver logs 
+logs-solr: tails solr logs 
+logs-api: tails api logs 
+logs-nginx: tails nginx logs 
+logs-le: tails nginx lets-encrypt 
+initdb-solr: prepares the solr database 
+```
+will give you something like
+```
+Help: 
+init: submodule initialization and updates
+down: brings the docker-compose set down 
+up: brings the docker-compose set up 
+logs | logs-web: tails webserver logs 
+logs-solr: tails solr logs 
+logs-api: tails api logs 
+logs-nginx: tails nginx logs 
+logs-le: tails nginx lets-encrypt 
+initdb-solr: prepares the solr database 
 ```
 
-At this point, the system should be up and running, though without any indexed documents.
+Create the SOLR db:
 
+```
+cd /data/oih-ui-docker
+make initdb-solr
+docker-compose run -u root solr chown solr:solr /var/solr/data/ckan/data
+Creating oih-ui-docker_solr_run ... done
+```
+
+#### Put everything together
+```
+make up
+```
+At this point, the system should be up and running, though without any indexed documents.
 
 ## Settings Details
 
