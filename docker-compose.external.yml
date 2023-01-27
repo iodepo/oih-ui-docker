@@ -17,7 +17,7 @@ networks:
 
 services:
   nginx-proxy:
-    restart: on-failure
+    restart: always
     logging:
       driver: "json-file"
       options:
@@ -40,6 +40,7 @@ services:
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
   letsencrypt-nginx-proxy-companion:
+    restart: always
     image: "nginxproxy/acme-companion"
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
@@ -55,6 +56,7 @@ services:
       - nginx-proxy
 
   api:
+    restart: always
     build:
       context: ./api/api
       dockerfile: Dockerfile
@@ -71,6 +73,7 @@ services:
       - LETSENCRYPT_EMAIL="dev@derilinx.com"
 
   web:
+    restart: always
     build:
       context: ./frontend/frontend
       dockerfile: Dockerfile
@@ -88,6 +91,7 @@ services:
       - "./frontend/frontend/src:/app/src"
 
   indexer:
+    restart: always
     build:
       context: ./indexer/indexer
       dockerfile: Dockerfile
@@ -102,6 +106,7 @@ services:
       - DATA_DIR=/opt/data
 
   solr:
+    restart: always
     image: "solr:8"
     logging:
       driver: "json-file"
@@ -116,5 +121,3 @@ services:
       - "./api/solr:/var/solr/data/ckan/"
       - solr-data:/var/solr/data/ckan/data:rw
 #      - index_test_solr-data:/tmp/old-data:ro
-
-#
