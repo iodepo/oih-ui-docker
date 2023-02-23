@@ -16,6 +16,16 @@ To install the complete interface
 ```
 git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git /data/oih-ui-docker
 ```
+- to be sure that we are using the correct code from the submodules it's best to checkout a known tag for each of them
+```
+cd /data/oih-ui-docker/frontend/frontend
+checkout 0.1.0
+```
+- check if this is ok
+```
+git status
+HEAD detached at 0.1.0
+```
 
 ### Configure
 
@@ -96,7 +106,11 @@ The `SOLR_JAVA_MEM` setting may require tweaking to allow for more memory to be 
 
 ## Updating
 When updating the server after commits to the [oih-ui repo](https://github.com/iodepo/oih-ui/) you will need to pull in those changes here.
+
+As we are using (should be using) tags for the submodules, we can checkout the desired tag in the resp. submodule.
 ```
-git pull 
-git submodule update --init --recursive
+cd /data/oih-ui-docker/frontend/frontend
+checkout 0.2.0
+git status
+HEAD detached at 0.2.0
 ```
