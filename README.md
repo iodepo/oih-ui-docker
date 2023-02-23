@@ -17,7 +17,7 @@ To install the complete interface
 git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git /data/oih-ui-docker
 ```
 
-### Configure 
+### Configure
 
 To make the env file we need you can either make it:
 
@@ -93,3 +93,10 @@ If you change the API url, the setting for `REACT_APP_DATA_SERVICE_URL` in the w
 ### Solr
 
 The `SOLR_JAVA_MEM` setting may require tweaking to allow for more memory to be used by the solr process, depending on the machine size.
+
+## Updating
+When updating the server after commits to the [oih-ui repo](https://github.com/iodepo/oih-ui/) you will need to pull in those changes here.
+```
+git pull 
+git submodule update --init --recursive
+```
