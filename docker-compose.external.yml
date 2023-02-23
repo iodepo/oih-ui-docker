@@ -14,6 +14,8 @@ networks:
       com.docker.network.driver.mtu: 1400
   solr:
     internal: true
+  solrbridge:
+    driver: host
 
 services:
   nginx-proxy:
@@ -108,6 +110,8 @@ services:
   solr:
     restart: always
     image: "solr:8"
+    ports:
+      - "8983:8983"
     logging:
       driver: "json-file"
       options:
