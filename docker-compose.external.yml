@@ -93,7 +93,8 @@ services:
       - "./frontend/frontend/src:/app/src"
 
   indexer:
-    restart: always
+    #removed the start always, as this is running again and again
+    #restart: always
     build:
       context: ./indexer/indexer
       dockerfile: Dockerfile
