@@ -19,7 +19,8 @@ services:
       driver: "json-file"
       options:
         max-size: 50m
-    image: "repository.staging.derilinx.com/nginx-proxy:$IMAGE_TAG"
+    #image: "repository.staging.derilinx.com/nginx-proxy:$IMAGE_TAG"
+    image: "nginxproxy/nginx-proxy:latest"
     networks:
       default:
         aliases:
@@ -37,7 +38,8 @@ services:
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
   letsencrypt-nginx-proxy-companion:
-    image: "repository.staging.derilinx.com/letsencrypt-nginx-proxy-companion:$IMAGE_TAG"
+    #image: "repository.staging.derilinx.com/letsencrypt-nginx-proxy-companion:$IMAGE_TAG"
+    image: "nginxproxy/acme-companion"
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
     volumes:
@@ -92,7 +94,7 @@ services:
     networks:
       default:
     environment:
-      - REACT_APP_DATA_SERVICE_URL=https://api.${HOST}
+      - REACT_APP_DATA_SERVICE_URL=http://api.${HOST}
       - VIRTUAL_HOST=${HOST}
       - VIRTUAL_PROTO=http
       - VIRTUAL_PORT=3000
@@ -103,7 +105,8 @@ services:
       - "./frontend/frontend/src:/app/src"
 
   solr:
-    image: "repository.staging.derilinx.com/solr_8.8:$IMAGE_TAG"
+    #image: "repository.staging.derilinx.com/solr_8.8:$IMAGE_TAG"
+    image: "solr:8"
     logging:
       driver: "json-file"
       options:
