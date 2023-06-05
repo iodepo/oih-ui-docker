@@ -8,18 +8,21 @@ volumes:
 networks:
   default:
     driver: bridge
+    # this is only required in openvswitch networks.
     driver_opts:
       com.docker.network.driver.mtu: 1400
   solr:
     internal: true
+  solrbridge:
+    driver: host
+
 services:
   nginx-proxy:
-    restart: on-failure
+    restart: always
     logging:
       driver: "json-file"
       options:
         max-size: 50m
-    #image: "repository.staging.derilinx.com/nginx-proxy:$IMAGE_TAG"
     image: "nginxproxy/nginx-proxy:latest"
     networks:
       default:
@@ -38,7 +41,7 @@ services:
     labels:
       com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
   letsencrypt-nginx-proxy-companion:
-    #image: "repository.staging.derilinx.com/letsencrypt-nginx-proxy-companion:$IMAGE_TAG"
+    restart: always
     image: "nginxproxy/acme-companion"
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
@@ -53,24 +56,8 @@ services:
     depends_on:
       - nginx-proxy
 
-
-  # webservice:
-  #   restart: on-failure
-  #   logging:
-  #     driver: "json-file"
-  #     options:
-  #       max-size: 50m
-  #   networks:
-  #     default:
-  #     solr:
-  #   environment:
-  #     - VIRTUAL_HOST=${HOST}
-  #     - VIRTUAL_PROTO=uwsgi
-  #     - LETSENCRYPT_HOST=${HOST}
-  #     - LETSENCRYPT_EMAIL="dev@derilinx.com"
-
-
   api:
+    restart: always
     build:
       context: ./api/api
       dockerfile: Dockerfile
@@ -88,6 +75,7 @@ services:
       - LETSENCRYPT_EMAIL="dev@derilinx.com"
 
   web:
+    restart: always
     build:
       context: ./frontend/frontend
       dockerfile: Dockerfile
@@ -104,9 +92,27 @@ services:
       - "./frontend/frontend/public:/app/public"
       - "./frontend/frontend/src:/app/src"
 
+  indexer:
+    #removed the start always, as this is running again and again
+    #restart: always
+    build:
+      context: ./indexer/indexer
+      dockerfile: Dockerfile
+    networks:
+      solr:
+    volumes:
+      - "./indexer/indexer:/usr/src/app"
+      - "./source-data:/opt/data"
+    environment:
+      - SOLR_URL=http://solr:8983/solr/ckan
+      # needs to match the volume mount
+      - DATA_DIR=/opt/data
+
   solr:
-    #image: "repository.staging.derilinx.com/solr_8.8:$IMAGE_TAG"
+    restart: always
     image: "solr:8"
+    ports:
+      - "8983:8983"
     logging:
       driver: "json-file"
       options:
@@ -119,6 +125,3 @@ services:
     volumes:
       - "./api/solr:/var/solr/data/ckan/"
       - solr-data:/var/solr/data/ckan/data:rw
-#      - index_test_solr-data:/tmp/old-data
-
-#

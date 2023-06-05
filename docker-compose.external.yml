@@ -5,7 +5,6 @@ volumes:
   # index_test_solr-data:
   #    external: true
 
-
 networks:
   default:
     driver: bridge
@@ -66,6 +65,7 @@ services:
       default:
       solr:
     volumes:
+      # that's a lot of api
       - "./api/api/api:/usr/src/app/api"
     environment:
       - SOLR_URL=http://solr:8983/solr/ckan
@@ -125,4 +125,3 @@ services:
     volumes:
       - "./api/solr:/var/solr/data/ckan/"
       - solr-data:/var/solr/data/ckan/data:rw
-#      - index_test_solr-data:/tmp/old-data:ro

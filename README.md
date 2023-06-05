@@ -9,23 +9,63 @@ It includes
 
 ## Installation
 
+### Prerequisites
+
+The description here is for a Ubuntu Linux server but should not be too different for another machine.
+
+- update/upgrade the server
+```
+sudo apt update 
+sudo apt upgrade
+sudo apt autoclean
+sudo apt autoremove
+```
+- GIT
+```
+sudo apt install git
+```
+- docker config /etc/docker/daemon.json should contain
+```
+{
+  "data-root": "/data/docker"
+}
+```
+- docker (see https://phoenixnap.com/kb/install-docker-on-ubuntu-20-04)
+```
+sudo apt remove docker docker-engine docker.io containerd runc
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-cache policy docker-ce
+sudo apt install docker-ce -y
+```
+- checker if docker is running correctly
+```
+sudo systemctl status docker
+```
+- [npm]
+- server has a mounted volume on /data with minimum 50G (should be 100G)
+
 ### Get the code
 
 To install the complete interface
-- clone this repository and all the submodules where you think everything should reside
+- clone this repository **and all the submodules** where you think everything should reside
 ```
 git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git /data/oih-ui-docker
 ```
 - to be sure that we are using the correct code from the submodules it's best to checkout a known tag for each of them
 ```
 cd /data/oih-ui-docker/frontend/frontend
-checkout 0.1.0
+git checkout 0.2.0
 ```
 - check if this is ok
 ```
 git status
 HEAD detached at 0.1.0
 ```
+- make a symlink from /data/oih-ui-docker/docker-compose.yml to either 
+  - /data/oih-ui-docker/docker-compose.external.yml for production server
+  - /data/oih-ui-docker/docker-compose.dev.yml for dev server
 
 ### Configure
 
@@ -61,18 +101,11 @@ logs-nginx: tails nginx logs
 logs-le: tails nginx lets-encrypt 
 initdb-solr: prepares the solr database 
 ```
-will give you something like
+
+Put all the dockers up
 ```
-Help: 
-init: submodule initialization and updates
-down: brings the docker-compose set down 
-up: brings the docker-compose set up 
-logs | logs-web: tails webserver logs 
-logs-solr: tails solr logs 
-logs-api: tails api logs 
-logs-nginx: tails nginx logs 
-logs-le: tails nginx lets-encrypt 
-initdb-solr: prepares the solr database 
+cd /data/oih-ui-docker/
+make up
 ```
 
 Create the SOLR db:
@@ -85,8 +118,16 @@ Creating oih-ui-docker_solr_run ... done
 ```
 
 ### Put everything together
+this should not be needed anymore, all containers should be running now
 ```
 make up
+docker ps
+9f97426ac4c1   nginxproxy/acme-companion       "/bin/bash /app/entr…"   16 minutes ago   Up 16 minutes                                              oih-ui-docker_letsencrypt-nginx-proxy-companion_1
+a874506b60a8   oih-ui-docker_web               "docker-entrypoint.s…"   16 minutes ago   Up 16 minutes                                              oih-ui-docker_web_1
+f6e83ad5e0eb   nginxproxy/nginx-proxy:latest   "/app/docker-entrypo…"   16 minutes ago   Up 16 minutes   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   oih-ui-docker_nginx-proxy_1
+59cf8919d72e   solr:8                          "docker-entrypoint.s…"   16 minutes ago   Up 16 minutes                                              oih-ui-docker_solr_1
+1a9443dbd9ca   oih-ui-docker_api               "uvicorn api.main:ap…"   16 minutes ago   Up 16 minutes   8000/tcp                                   oih-ui-docker_api_1
+
 ```
 At this point, the system should be up and running, though without any indexed documents.
 
