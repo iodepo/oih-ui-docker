@@ -56,12 +56,12 @@ git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git /data/oih
 - to be sure that we are using the correct code from the submodules it's best to checkout a known tag for each of them
 ```
 cd /data/oih-ui-docker/frontend/frontend
-git checkout 0.2.0
+git checkout 0.3.0
 ```
 - check if this is ok
 ```
 git status
-HEAD detached at 0.1.0
+HEAD detached at 0.3.0
 ```
 - make a symlink from /data/oih-ui-docker/docker-compose.yml to either 
   - /data/oih-ui-docker/docker-compose.external.yml for production server
@@ -151,7 +151,8 @@ When updating the server after commits to the [oih-ui repo](https://github.com/i
 As we are using (should be using) tags for the submodules, we can checkout the desired tag in the resp. submodule.
 ```
 cd /data/oih-ui-docker/frontend/frontend
-checkout 0.2.0
+git pull
+git checkout 0.3.0
 git status
-HEAD detached at 0.2.0
+HEAD detached at 0.3.0
 ```
