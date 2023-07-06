@@ -58,7 +58,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: 50m       
+        max-size: 50m
 
   api:
     restart: always
@@ -68,7 +68,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: 50m       
+        max-size: 50m
     networks:
       default:
       solr:
@@ -90,7 +90,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: 50m       
+        max-size: 50m
     networks:
       default:
     environment:
@@ -113,7 +113,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: 50m       
+        max-size: 50m
     networks:
       solr:
     volumes:
