@@ -55,12 +55,21 @@ services:
       - "le-data:/etc/acme.sh"
     depends_on:
       - nginx-proxy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+      
 
   api:
     restart: always
     build:
       context: ./api/api
       dockerfile: Dockerfile
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
     networks:
       default:
       solr:
@@ -79,6 +88,10 @@ services:
     build:
       context: ./frontend/frontend
       dockerfile: Dockerfile
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
     networks:
       default:
     environment:
@@ -98,6 +111,10 @@ services:
     build:
       context: ./indexer/indexer
       dockerfile: Dockerfile
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
     networks:
       solr:
     volumes:
