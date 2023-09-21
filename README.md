@@ -155,5 +155,5 @@ cd /data/oih-ui-docker/frontend/frontend
 git pull
 git checkout 0.4.2
 git status
-HEAD detached at 0.4.2
+   #HEAD detached at 0.4.2
 ```
