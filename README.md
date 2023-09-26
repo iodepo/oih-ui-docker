@@ -57,12 +57,12 @@ git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git /data/oih
 ```
 cd /data/oih-ui-docker/frontend/frontend
 git pull
-git checkout 0.4.3
+git checkout 0.4.4
 ```
 - check if this is ok
 ```
 git status
-HEAD detached at 0.4.3
+HEAD detached at 0.4.4
 ```
 - make a symlink from /data/oih-ui-docker/docker-compose.yml to either 
   - /data/oih-ui-docker/docker-compose.external.yml for production server
@@ -153,7 +153,7 @@ As we are using (should be using) tags for the submodules, we can checkout the d
 ```
 cd /data/oih-ui-docker/frontend/frontend
 git pull
-git checkout 0.4.3
+git checkout 0.4.4
 git status
-   #HEAD detached at 0.4.3
+   #HEAD detached at 0.4.4
 ```
