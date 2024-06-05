@@ -93,9 +93,19 @@ docker-compose -f docker-compose.prod.yml up -d
 
 8.  **Initialize the Solr database:**
 
+If you want to create a local instance:
+
 ```bash
 
-make initdb-solr
+docker-compose run -u root solr chown solr:solr /var/solr/data/ckan/data
+
+```
+
+If you want to create a production instance:
+
+```bash
+
+docker-compose -f docker-compose.prod.yml run -u root solr chown solr:solr /var/solr/data/ckan/data
 
 ```
 
