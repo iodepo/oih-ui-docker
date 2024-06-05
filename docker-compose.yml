@@ -1,1 +1,146 @@
-docker-compose.external.yml
+version: "3.4"
+volumes:
+  solr-data:
+  le-data:
+  # index_test_solr-data:
+  #   external: true
+
+networks:
+  default:
+    driver: bridge
+    # this is only required in openvswitch networks.
+    driver_opts:
+      com.docker.network.driver.mtu: 1400
+  solr:
+    internal: true
+  solrbridge:
+    driver: host
+
+services:
+  nginx-proxy:
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+    image: "nginxproxy/nginx-proxy:latest"
+    networks:
+      default:
+        aliases:
+          - $HOST
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./nginx/conf.d/proxy.conf:/etc/nginx/conf.d/proxy.conf"
+      - "./nginx/vhost.d:/etc/nginx/vhost.d"
+      - "./nginx/ssl/certs:/etc/nginx/certs"
+      - "./nginx/html:/usr/share/nginx/html"
+      - "./nginx/htpasswd:/etc/nginx/htpasswd"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+  letsencrypt-nginx-proxy-companion:
+    restart: always
+    image: "nginxproxy/acme-companion"
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - "./nginx/conf.d/proxy.conf:/etc/nginx/conf.d/proxy.conf"
+      - "./nginx/vhost.d:/etc/nginx/vhost.d"
+      - "./nginx/ssl/certs:/etc/nginx/certs"
+      - "./nginx/html:/usr/share/nginx/html"
+      - "./nginx/htpasswd:/etc/nginx/htpasswd"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "le-data:/etc/acme.sh"
+    depends_on:
+      - nginx-proxy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+
+  api:
+    restart: always
+    build:
+      context: ./api/api
+      dockerfile: Dockerfile
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+    networks:
+      default:
+      solr:
+    volumes:
+      # that's a lot of api
+      - "./api/api/api:/usr/src/app/api"
+    environment:
+      - SOLR_URL=http://solr:8983/solr/ckan
+      - VIRTUAL_HOST=api.${HOST}
+      - VIRTUAL_PROTO=http
+      - LETSENCRYPT_HOST=api.${HOST}
+      - LETSENCRYPT_EMAIL="dev@derilinx.com"
+
+  web:
+    restart: always
+    build:
+      context: ./frontend/frontend
+      dockerfile: Dockerfile
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+    networks:
+      default:
+    environment:
+      - REACT_APP_DATA_SERVICE_URL=http://api.${HOST}
+      - VIRTUAL_HOST=${HOST}
+      - VIRTUAL_PROTO=http
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=${HOST}
+      - LETSENCRYPT_EMAIL="dev@derilinx.com"
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - "./frontend/frontend/public:/app/public"
+      - "./frontend/frontend/src:/app/src"
+
+  indexer:
+    #removed the start always, as this is running again and again
+    #restart: always
+    build:
+      context: ./indexer/indexer
+      dockerfile: Dockerfile
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+    networks:
+      solr:
+    volumes:
+      - "./indexer/indexer:/usr/src/app"
+      - "./source-data:/opt/data"
+    environment:
+      - SOLR_URL=http://solr:8983/solr/ckan
+      # needs to match the volume mount
+      - DATA_DIR=/opt/data
+
+  solr:
+    restart: always
+    image: "solr:8"
+    ports:
+      - "8983:8983"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 50m
+    networks:
+      solr:
+    environment:
+      - SOLR_JAVA_MEM=-Xms1g -Xmx1g
+      - SOLR_OPTS=-Dlog4j2.formatMsgNoLookups=true
+    user: solr
+    volumes:
+      - "./api/solr:/var/solr/data/ckan/"
+      - solr-data:/var/solr/data/ckan/data:rw
+      - "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
