@@ -1,4 +1,4 @@
-version: '3.4'
+version: "3.4"
 volumes:
   solr-data:
   le-data:
@@ -59,7 +59,6 @@ services:
       driver: "json-file"
       options:
         max-size: 50m
-      
 
   api:
     restart: always
@@ -142,3 +141,4 @@ services:
     volumes:
       - "./api/solr:/var/solr/data/ckan/"
       - solr-data:/var/solr/data/ckan/data:rw
+      - "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
