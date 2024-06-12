@@ -75,11 +75,14 @@ Use the `sample-solr-data` file from the decompressed zip.
 
 7.  **Start the Docker containers:**
 
+Be careful, depending on the version of Docker installed on your system, you will need to use either docker compose or docker-compose.
+
 If you want to create a local instance:
 
 ```bash
 
-docker-compose up -d
+docker compose up -d
+
 
 ```
 
@@ -87,17 +90,19 @@ If you want to create a production instance:
 
 ```bash
 
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 
 ```
 
 8.  **Initialize the Solr database:**
 
+Be careful, depending on the version of Docker installed on your system, you will need to use either docker compose or docker-compose.
+
 If you want to create a local instance:
 
 ```bash
 
-docker-compose run -u root solr chown solr:solr /var/solr/data/ckan/data
+docker compose run -u root solr chown solr:solr /var/solr/data/ckan/data
 
 ```
 
@@ -105,7 +110,7 @@ If you want to create a production instance:
 
 ```bash
 
-docker-compose -f docker-compose.prod.yml run -u root solr chown solr:solr /var/solr/data/ckan/data
+docker compose -f docker-compose.prod.yml run -u root solr chown solr:solr /var/solr/data/ckan/data
 
 ```
 
