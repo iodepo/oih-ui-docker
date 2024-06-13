@@ -102,7 +102,7 @@ If you want to create a local instance:
 
 ```bash
 
-docker compose run -u root solr chown solr:solr /var/solr/data/ckan/data
+make initdb-solr
 
 ```
 
