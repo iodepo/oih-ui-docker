@@ -179,6 +179,12 @@ We will install everything under the same directory on the server, in this READM
 
 ## Installation
 
+The primary method we suggest for installation is running the setup_prod.sh script (only for non-local development environments).
+
+In the .sh file, you will need to change the path to the correct one to copy the Solr data and set the correct permissions.
+
+Otherwise, you can follow the instructions below:
+
 Some parts of the guide vary depending on whether you want to start a server locally or in production.
 
 Follow these steps to set up the OIH UI Docker environment:
