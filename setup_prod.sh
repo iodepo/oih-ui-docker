@@ -54,15 +54,15 @@ echo "Sleep for 90s"
 sleep 90
 
 docker restart oih-ui-docker-letsencrypt-nginx-proxy-companion-1
-echo "Restart Acme Contaner, Sleep for 20s"
+echo "Restart Acme Container, Sleep for 20s"
 sleep 20
 
 docker restart oih-ui-docker-nginx-proxy-1
-echo "Restart Proxy Contaner, Sleep for 20s"
+echo "Restart Proxy Container, Sleep for 20s"
 sleep 20
 
 docker restart oih-ui-docker-web-1
-echo "Restart Web Contaner, Sleep for 40s"
+echo "Restart Web Container, Sleep for 40s"
 sleep 40
 
 echo "Script completed successfully! The container web is starting and it will be available soon"
