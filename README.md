@@ -388,9 +388,27 @@ index.html.2                                    100%[===========================
 2024-06-13 13:58:07 (425 MB/s) - ‘index.html.2’ saved [1462/1462]
 ```
 
-If you cannot see that you have to check your firewall, you may not have the correct rights to connect to the public interface of the firewall.
+If you cannot see that, you have to check your firewall, you may not have the correct rights to connect to the public interface of the firewall.
 
 ## you encounter an issue with the Solr container
 
 - check the permissions of the /data/oih-ui-docker/api/solr/sample-solr-data dir, all should be set to 777 (rwxrwxrwx)
 - try deleting the write.lock file inside the sample-solr-data folder and restart the container
+## you see something else when surfing to https://domain-name
+
+- check if the DNS is pointing to the correct IP address
+- check if your firewall/reverse proxy is forwarding the IP traffic for ports 80/443 to this machine's internal IP address
+- check if no other webserver is running on this machine
+```bash
+netstat -tupl
+```
+should give you something like
+```
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:http            0.0.0.0:*               LISTEN      1466/docker-proxy   
+tcp        0      0 0.0.0.0:ssh             0.0.0.0:*               LISTEN      826/sshd: /usr/sbin 
+tcp        0      0 0.0.0.0:https           0.0.0.0:*               LISTEN      1423/docker-proxy   
+tcp        0      0 0.0.0.0:8000            0.0.0.0:*               LISTEN      1343/docker-proxy   
+```
+meaning docker-proxy is listening to http (port 80) and https (port 443), there can be more ports docker-proxy is listening to (in this example port 8000)
