@@ -1,242 +1,75 @@
 #!/bin/bash
 
-#define some colours
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-printf "${NC}"
-
-helpFunction()
-{
-   echo ""
-   echo "Usage: $0 -d installDir -s solrDir -u url"
-   echo -e "\t-d complete path to where we will install everything (default /data/oih-ui-docker/)"
-   echo -e "\t-s complete path to the SOLR test data (default /data/solr_data/)"
-   echo -e "\t-u url of the search interface (default https://devsearch.oceaninfohub.org/)"
-   echo -e "\t-h print this help"
-   exit 1 # Exit script after printing help
-}
-
-while getopts "d:s:u:h" opt
-do
-   case "$opt" in
-      d ) installDir="$OPTARG" ;;
-      s ) solrDir="$OPTARG" ;;
-      u ) url="$OPTARG" ;;
-      ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
-   esac
-done
-
-# use default values if not set
-if [ -z "$installDir" ]; then
-  installDir='/data/oih-ui-docker/'
-  printf "using default installation directory: $installDir \n"
-fi
-
-if [ -z "$solrDir" ]; then
-  solrDir='/data/solr_data/'
-  printf "using default solr directory: $solrDir \n"
-fi
-
-if [ -z "$url" ]; then
-  url='https://devsearch.oceaninfohub.org/'
-  # shellcheck disable=SC2028
-  printf "using default url: $url \n"
-fi
-
-#check the correctness of the values
-#installDir must be a complete path
-if [[ "$installDir" =~ ^\/[[:alnum:]] && "$installDir" =~ [[:alnum:]]\/$ ]]; then
-  printf "$installDir is a valid complete path\n"
-  #check if the parent directory exists
-  #the directory itself will be created by GIT
-  installDirParent="$(dirname "$installDir")"
-  if [ -d $installDirParent ]; then
-    printf "$installDirParent exists\n"
-  else
-    printf "${RED}ERROR${NC}: $installDirParent does not exist, we cannot create $installDir if $installDirParent does not exist\n"
-    exit 6
-  fi
-
-else
-  printf "${RED}ERROR${NC}: $installDir is not a valid complete path, should be like /data/oih-ui-docker/\n"
-  exit 2
-fi
-
-#solrDir must be a complete path
-if [[ "$solrDir" =~ ^\/[[:alnum:]] && "$solrDir" =~ [[:alnum:]]\/$ ]]; then
-  printf "$solrDir is a valid complete path\n"
-
-  #solrDir must exist
-  if [ -d $solrDir ]; then
-    printf "$solrDir exists\n"
-  else
-    printf "${RED}ERROR${NC}: $solrDir does not exist\n"
-    exit 5
-  fi
-else
-  printf "${RED}ERROR${NC}: $solrDir is not a valid complete path, should be like /data/solr_data/\n"
-  exit 3
-fi
-
-#url must be a correct url
-if [[ "$url" =~ ^https?\:\/\/([[:alnum:]]+\.)+[[:alnum:]]+\/?$ ]]; then
-  printf "$url is a valid url\n"
-else
-  printf "${RED}ERROR${NC}: $url is not a valid url, should be like http(s)://devsearch.oceaninfohub.org/\n"
-  exit 4
-fi
-
-#clean the url, remove http(s)://
-re='^https?\:\/\/(([[:alnum:]]+\.)+[[:alnum:]]+)\/?$'
-if [[ $url =~ $re ]]; then
-  host=${BASH_REMATCH[1]}
-fi
-
-
-printf "\n\nare these the correct settings (${YELLOW}Y${NC}/n):\n"
-printf "\tinstall dir :    $installDir\n"
-printf "\tsolr test data : $solrDir\n"
-printf "\turl :            $url\n\n"
-
-read answer4
-
-if [ "$answer4" = "n" ] ;then
-  printf "nothing will be done"
-  exit 1
-fi
-
-printf "start installation\n\n"
-
 # Clone the repository and its submodules
-printf " \n${YELLOW}cloning oih-ui-docker to $installDir${NC}\n"
-git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
+git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git oih-ui-docker
 
 # Navigate to the project directory
-cd $installDir
+cd oih-ui-docker
 
 # Fetch the latest changes and check out the 'release' branch
-printf " \n${YELLOW}fetching and checking out the 'release' branch${NC}\n"
 git fetch
 git checkout release
 
 # Navigate to the 'frontend' directory, fetch the latest changes, and check out the 'feature/restyling' branch
-printf " \n${YELLOW}navigating to 'frontend' directory and fetching and checking out the 'feature/restyling' branch${NC}\n"
-cd $installDir/frontend
+cd frontend
 git fetch
 git checkout feature/restyling
 
 # Return to the main directory and navigate to the 'api' directory, fetch the latest changes, and check out the 'feature/restyling' branch
-printf " \n${YELLOW}navigating to 'api' directory and fetching and checking out the 'feature/restyling' branch${NC}\n"
-cd $installDir/api
+cd ..
+cd api
 git fetch
 git checkout feature/restyling
 
+# Return to the main directory
+cd ..
+
 # Create the .env file by copying the env.sample file
-cd $installDir
-touch $installDir/.env
+cp env.sample .env
+
+# Clear the content of the .env file before writing
+> .env
 
 # Add the HOST variable to the .env file
-echo "HOST=$host" >> $installDir/.env
+echo "HOST=$1" >> .env
 
 # Copy Solr data to the target directory and change its permissions (change the root with the right one)
-printf " \n${YELLOW}copying Solr data to the target directory and changing its permissions${NC}\n"
-cp -r $solrDir $installDir/api/solr/sample-solr-data/
-chmod -R 777 $installDir/api/solr/sample-solr-data/
+cp -r /data/solr_data /data/oih-ui-docker/api/solr/sample-solr-data/
+chmod -R 777 /data/oih-ui-docker/api/solr/sample-solr-data/
+
+# Remove old containers
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+
+# Remove Let's encrypt data (to avoid cert generation issues)
+docker volume rm oih-ui-docker_le-data
 
 # Start the Docker containers in production mode
-printf " \n${YELLOW}starting the Docker containers in production mode${NC}\n"
-docker compose -f docker-compose.prod.yml up -d --remove-orphans
+docker compose -f docker-compose.prod.yml up -d
 
 # Wait for 10 seconds before continue
-printf " \n${YELLOW}sleep for 10s${NC}\n"
-sleep 10 &
-  PID=$!
-  i=1
-  sp="/-\|"
-  echo -n ' '
-  while [ -d /proc/$PID ]
-  do
-    printf "\b${sp:i++%${#sp}:1}"
-  done
-
-#erase the progress bar
-echo -ne "\r\033[K"
+sleep 10
 
 # Change permissions for the Solr directory
-printf " \n${YELLOW}changing permissions for the Solr directory${NC}\n"
 docker compose -f docker-compose.prod.yml run -u root solr chown solr:solr /var/solr/data/ckan/data
 
-# Restart the containers
-printf " \n${YELLOW}restarting the containers${NC}\n"
+
+
 docker restart $(docker ps -a -q)
 
-printf " \n${YELLOW}sleep for 90s${NC}\n"
-sleep 90 &
-PID=$!
-i=1
-sp="/-\|"
-echo -n ' '
-while [ -d /proc/$PID ]
-do
-  printf "\b${sp:i++%${#sp}:1}"
-done
+echo "Sleep for 30s"
+sleep 30
 
-#erase the progress bar
-echo -ne "\r\033[K"
-
-#get the certifcates from the Letsencrypt container
-printf " \n${YELLOW}restart the Let's encrypt container${NC}\n"
 docker restart oih-ui-docker-letsencrypt-nginx-proxy-companion-1
-printf " \n${YELLOW}sleep for 20s${NC}\n"
-sleep 20 &
-  PID=$!
-  i=1
-  sp="/-\|"
-  echo -n ' '
-  while [ -d /proc/$PID ]
-  do
-    printf "\b${sp:i++%${#sp}:1}"
-  done
+echo "Restart Acme Container, Sleep for 20s"
+sleep 20
 
-#erase the progress bar
-echo -ne "\r\033[K"
-
-#restart the nginx-proxy and web containers
-printf " \n${YELLOW}restart the nginx-proxy and web containers${NC}\n"
 docker restart oih-ui-docker-nginx-proxy-1
-printf " \n${YELLOW}sleep for 20s${NC}\n"
-sleep 20 &
-  PID=$!
-  i=1
-  sp="/-\|"
-  echo -n ' '
-  while [ -d /proc/$PID ]
-  do
-    printf "\b${sp:i++%${#sp}:1}"
-  done
-
-#erase the progress bar
-echo -ne "\r\033[K"
+echo "Restart Proxy Container, Sleep for 20s"
+sleep 20
 
 docker restart oih-ui-docker-web-1
-printf " \n${YELLOW}sleep for 40s${NC}\n"
-sleep 40 &
-  PID=$!
-  i=1
-  sp="/-\|"
-  echo -n ' '
-  while [ -d /proc/$PID ]
-  do
-    printf "\b${sp:i++%${#sp}:1}"
-  done
+echo "Restart Web Container, Sleep for 40s"
+sleep 40
 
-#erase the progress bar
-echo -ne "\r\033[K"
-
-#these dockers are running
-printf " \n${YELLOW}these dockers are running now${NC}\n"
-docker ps
-
-# Print a success message
-printf " \n${YELLOW}Installation completed successfully! All should be available soon on $url ${NC}\n"
+echo "Script completed successfully! The container web is starting and it will be available soon"
