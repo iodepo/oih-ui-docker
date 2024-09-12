@@ -127,6 +127,7 @@ docker images -a -q | xargs -r docker rmi
 # and finally, cleanup Docker
 printf " \n${YELLOW}finally cleanup Docker${NC}\n"
 docker system prune -f
+
 # Clone the repository and its submodules
 printf " \n${YELLOW}cloning oih-ui-docker to $installDir${NC}\n"
 git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir

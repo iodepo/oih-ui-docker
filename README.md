@@ -181,13 +181,75 @@ We will install everything under the same directory on the server, in this READM
 
 The primary method we suggest for installation is running the setup_prod.sh script (only for non-local development environments).
 
-In the .sh file, you will need to change the path to the correct one to copy the Solr data and set the correct permissions.
+To use the script, copy the file setup_prod.sh to the server where you want to install OIH UI.
+
+The setup_prod.sh script can be run with -h argument to get some more options and their meaning.
+```
+./setup_prod.sh -h
+
+Usage: ./setup_prod.sh -d installDir -s solrDir -u url
+	-d complete path to where we will install everything (default /data/oih-ui-docker/)
+	-s complete path to the SOLR test data (default /data/solr_data/)
+	-u url of the search interface (default https://devsearch.oceaninfohub.org/)
+	-h print this help
+```
+
+If you do not provide any arguments, the default values will be used. 
+In the next step those settings will be checked and validated and you will be asked to confirm these settings (default is Y).
+
+***WARNING***: normally you will need to provide at least a correct url that points to your server (see higher up in this guide).
+```
+ ./setup_prod.sh 
+using default installation directory: /data/oih-ui-docker/ 
+using default solr directory: /data/solr_data/ 
+using default url: https://devsearch.oceaninfohub.org/ 
+/data/oih-ui-docker/ is a valid complete path
+/data exists
+/data/solr_data/ is a valid complete path
+/data/solr_data/ exists
+https://devsearch.oceaninfohub.org/ is a valid url
+
+Usage: ./setup_prod.sh -d installDir -s solrDir -u url 
+for more info: ./setup_prod.sh -h 
+
+are these the correct settings (Y/n):
+	install dir :    /data/oih-ui-docker/
+	solr test data : /data/solr_data/
+	url :            https://devsearch.oceaninfohub.org/
+```
+
+***WARNING***: The setup_prod.sh script will remove all Docker containers, volumes and images.
 
 Otherwise, you can follow the instructions below:
 
 Some parts of the guide vary depending on whether you want to start a server locally or in production.
 
 Follow these steps to set up the OIH UI Docker environment:
+
+### Cleanup Docker
+#### stop running container(s)
+```
+docker ps -aq | xargs -r docker stop
+```
+#### remove existing container(s)
+```
+docker ps -aq | xargs -r docker rm
+```
+
+#### Remove all volumes (to avoid cert generation issues)
+```
+docker volume ls -qf dangling=true | xargs -r docker volume rm
+```
+
+#### Remove all images
+```
+docker images -a -q | xargs -r docker rmi
+```
+
+#### and finally, cleanup Docker
+```
+docker system prune -f
+```
 
 ### Clone the repository with submodules
 
