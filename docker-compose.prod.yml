@@ -51,6 +51,11 @@ services:
       - "./nginx/html:/usr/share/nginx/html"
       - "./nginx/htpasswd:/etc/nginx/htpasswd"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # custom certificates
+      # see https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md
+      # if you need this, please edit the letsencrypt_user_data.conf file accordingly
+      # and add a vhost to the proxy.conf file
+      - "./nginx/conf.d/letsencrypt_user_data.conf:/app/letsencrypt_user_data:ro"
       - "le-data:/etc/acme.sh"
     depends_on:
       - nginx-proxy

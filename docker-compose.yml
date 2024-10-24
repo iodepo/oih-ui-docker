@@ -2,7 +2,7 @@ volumes:
   solr-data:
   le-data:
   # index_test_solr-data:
-  #   external: true
+  #    external: true
 
 networks:
   default:
@@ -51,6 +51,11 @@ services:
       - "./nginx/html:/usr/share/nginx/html"
       - "./nginx/htpasswd:/etc/nginx/htpasswd"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # custom certificates
+      # see https://github.com/nginx-proxy/acme-companion/blob/main/docs/Standalone-certificates.md
+      # if you need this, please edit the letsencrypt_user_data.conf file accordingly
+      # and add a vhost to the proxy.conf file
+      - "./nginx/conf.d/letsencrypt_user_data.conf:/app/letsencrypt_user_data:ro"
       - "le-data:/etc/acme.sh"
     depends_on:
       - nginx-proxy
@@ -93,13 +98,12 @@ services:
     networks:
       default:
     environment:
-      - REACT_APP_DATA_SERVICE_URL=http://api.${HOST}
+      - REACT_APP_DATA_SERVICE_URL=https://api.${HOST}
       - VIRTUAL_HOST=${HOST}
       - VIRTUAL_PROTO=http
       - VIRTUAL_PORT=3000
       - LETSENCRYPT_HOST=${HOST}
       - LETSENCRYPT_EMAIL="dev@derilinx.com"
-      - CHOKIDAR_USEPOLLING=true
     volumes:
       - "./frontend/frontend/public:/app/public"
       - "./frontend/frontend/src:/app/src"
@@ -138,7 +142,6 @@ services:
     environment:
       - SOLR_JAVA_MEM=-Xms1g -Xmx1g
       - SOLR_OPTS=-Dlog4j2.formatMsgNoLookups=true
-    user: solr
     volumes:
       - "./api/solr:/var/solr/data/ckan/"
       - solr-data:/var/solr/data/ckan/data:rw
