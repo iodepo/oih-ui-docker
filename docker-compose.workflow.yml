@@ -157,10 +157,6 @@ services:
   # $PROJECT default eco
   # CONTAINER_TAG default latest
 
-
-  #remove lines after check
-
-
   dagster-dagit:
     restart: always
     image: "docker.io/nsfearthcube/dagster-${PROJECT:-eco}:${CONTAINER_TAG:-latest}"

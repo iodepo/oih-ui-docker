@@ -120,8 +120,6 @@ fi
 
 printf "start installation\n\n"
 
-
-
 # stop and remove old containers
 printf " \n${YELLOW}stopping and removing old containers${NC}\n"
 # stop running container(s)
