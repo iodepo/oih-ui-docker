@@ -59,7 +59,7 @@ if [[ "$installDir" =~ ^\/[[:alnum:]] && "$installDir" =~ [[:alnum:]]\/$ ]]; the
   fi
 
 else
-  printf "${RED}ERROR${NC}: $installDir is not a valid complete path, should be like /data/oih-ui-docker/\n"
+  printf "${RED}ERROR${NC}: $installDir is not a valid complete path, should be something like /data/oih-ui-docker/\n"
   exit 2
 fi
 
@@ -75,7 +75,7 @@ if [[ "$solrDir" =~ ^\/[[:alnum:]] && "$solrDir" =~ [[:alnum:]]\/$ ]]; then
     exit 5
   fi
 else
-  printf "${RED}ERROR${NC}: $solrDir is not a valid complete path, should be like /data/solr_data/\n"
+  printf "${RED}ERROR${NC}: $solrDir is not a valid complete path, should be something like /data/solr_data/\n"
   exit 3
 fi
 
@@ -83,7 +83,7 @@ fi
 if [[ "$url" =~ ^https?\:\/\/([[:alnum:]]+\.)+[[:alnum:]]+\/?$ ]]; then
   printf "$url is a valid url\n"
 else
-  printf "${RED}ERROR${NC}: $url is not a valid url, should be like http(s)://devsearch.oceaninfohub.org/\n"
+  printf "${RED}ERROR${NC}: $url is not a valid url, should be something like http(s)://devsearch.oceaninfohub.org/\n"
   exit 4
 fi
 
@@ -93,12 +93,23 @@ if [[ $url =~ $re ]]; then
   host=${BASH_REMATCH[1]}
 fi
 
+#do we want to install the worklfow container?
+printf "\nDo you want to install the workflow container (${YELLOW}Y${NC}/n):\n"
+read useWorkflowContainer
+if [ "$useWorkflowContainer" = "n" ] ;then
+  printf "no workflow container will be installed\n"
+else
+  printf "workflow container will be installed\n"
+  useWorkflowContainer="y"
+fi
+
 printf "\nUsage: $0 -d installDir -s solrDir -u url \n"
 printf "for more info: $0 -h \n"
 printf "\nare these the correct settings (${YELLOW}Y${NC}/n):\n"
 printf "\tinstall dir :    $installDir\n"
 printf "\tsolr test data : $solrDir\n"
-printf "\turl :            $url\n\n"
+printf "\turl :            $url\n"
+printf "\tworkflow :       $useWorkflowContainer\n\n"
 
 read answer4
 
@@ -108,6 +119,71 @@ if [ "$answer4" = "n" ] ;then
 fi
 
 printf "start installation\n\n"
+
+
+# Create the .env file in the project directory
+cd $installDir
+touch $installDir/.env
+
+# Add the HOST variable to the .env file
+echo "HOST=$host" > $installDir/.env
+
+if [ "$useWorkflowContainer" = "n" ] ;then
+  dockerComposeFile="docker-compose.noWorkflow.yml"
+  printf "using ${YELLOW}$dockerComposeFile${NC}\n"
+else
+  dockerComposeFile="docker-compose.workflow.yml"
+
+  #copy the old file and add a date to the name
+  cp $installDir/nginx/conf.d/letsencrypt_user_data.conf $installDir/nginx/conf.d/letsencrypt_user_data.conf_$(date +%Y%m%d%H%M%S)
+
+  #add the correct lines for the SSL certificates
+  #our current ip
+  localIp=$(ifconfig -a | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep 192 | grep -v 255 | head -1)
+  workflowHost="workflow.${host}"
+  echo "LETSENCRYPT_STANDALONE_CERTS=('workflow')" >> $installDir/nginx/conf.d/letsencrypt_user_data.conf
+  echo "LETSENCRYPT_workflow_HOST=('$workflowHost')" >> $installDir/nginx/conf.d/letsencrypt_user_data.conf
+
+  #copy the old proxy file and add a date to the name
+  cp $installDir/nginx/conf.d/proxy.conf $installDir/nginx/conf.d/proxy.conf_$(date +%Y%m%d%H%M%S)
+
+  #add the correct lines for the nginx proxy
+  echo "server {" >> $installDir/nginx/conf.d/proxy.conf
+  echo "    server_name $workflowHost;" >> $installDir/nginx/conf.d/proxy.conf
+  echo "    listen 80;" >> $installDir/nginx/conf.d/proxy.conf
+  echo "    access_log /var/log/nginx/workflow.search.log vhost;" >> $installDir/nginx/conf.d/proxy.conf;
+  echo "    location / {" >> $installDir/nginx/conf.d/proxy.conf
+  echo "        proxy_pass          http://$localIp:3000;" >> $installDir/nginx/conf.d/proxy.conf;
+  echo "    }" >> $installDir/nginx/conf.d/proxy.conf
+  echo "}" >> $installDir/nginx/conf.d/proxy.conf
+
+  printf "using ${YELLOW}$dockerComposeFile${NC}\n"
+  printf "access workflow via ${YELLOW}https://$workflowHost${NC}\n"
+
+  #copy the old .env file and add a date to the name
+  cp $installDir/.env $installDir/.env_$(date +%Y%m%d%H%M%S)
+
+  #change the .env file, add some lines for the workflow container
+  echo "#settings for the workflow" >> $installDir/.env
+  echo "PROJECT=eco" >> $installDir/.env
+  echo "GLEANERIO_GLEANER_IMAGE=nsfearthcube/gleaner:dev_ec" >> $installDir/.env
+  echo "GLEANERIO_NABU_IMAGE=nsfearthcube/nabu:dev_eco" >> $installDir/.env
+  echo "GLEANERIO_GLEANER_CONFIG_PATH=/gleaner/gleanerconfig.yaml" >> $installDir/.env
+  echo "GLEANERIO_NABU_CONFIG_PATH=/nabu/nabuconfig.yaml" >> $installDir/.env
+  echo "GLEANERIO_LOG_PREFIX=scheduler/logs/" >> $installDir/.env
+  echo "GLEANERIO_MINIO_ADDRESS=ossapi.provisium.io" >> $installDir/.env
+  echo "GLEANERIO_MINIO_PORT=" >> $installDir/.env
+  echo "GLEANERIO_MINIO_USE_SSL=true" >> $installDir/.env
+  echo "GLEANERIO_MINIO_BUCKET=gleaner" >> $installDir/.env
+  echo "GLEANERIO_MINIO_ACCESS_KEY=minioadmin" >> $installDir/.env
+  echo "GLEANERIO_MINIO_SECRET_KEY=6EcDLmMiXsAPjc9kttAE7PMXitxrnyqxEefCYPoy" >> $installDir/.env
+  echo "GLEANERIO_HEADLESS_ENDPOINT=http://workstation.lan:9222" >> $installDir/.env
+  echo "GLEANERIO_GRAPH_URL=http://nas.lan:49153/blazegraph" >> $installDir/.env
+  echo "GLEANERIO_GRAPH_NAMESPACE=earthcube" >> $installDir/.env
+
+fi
+
+exit 0
 
 # stop and remove old containers
 printf " \n${YELLOW}stopping and removing old containers${NC}\n"
@@ -152,13 +228,6 @@ cd $installDir/api
 git fetch
 git checkout feature/restyling
 
-# Create the .env file by copying the env.sample file
-cd $installDir
-touch $installDir/.env
-
-# Add the HOST variable to the .env file
-echo "HOST=$host" > $installDir/.env
-
 # Copy Solr data to the target directory and change its permissions (change the root with the right one)
 printf " \n${YELLOW}copying Solr data to the target directory and changing its permissions${NC}\n"
 cp -r $solrDir $installDir/api/solr/sample-solr-data/
@@ -166,7 +235,7 @@ chmod -R 777 $installDir/api/solr/sample-solr-data/
 
 # Start the Docker containers in production mode
 printf " \n${YELLOW}starting the Docker containers in production mode${NC}\n"
-docker compose -f docker-compose.prod.yml up -d --remove-orphans
+docker compose -f $dockerComposeFile up -d --remove-orphans
 
 # Wait for 10 seconds before continue
 printf " \n${YELLOW}sleep for 10s${NC}\n"
@@ -185,7 +254,7 @@ echo -ne "\r\033[K"
 
 # Change permissions for the Solr directory
 printf " \n${YELLOW}changing permissions for the Solr directory${NC}\n"
-docker compose -f docker-compose.prod.yml run -u root solr chown solr:solr /var/solr/data/ckan/data
+docker compose -f $dockerComposeFile run -u root solr chown solr:solr /var/solr/data/ckan/data
 
 # Restart the containers
 printf " \n${YELLOW}restarting the containers${NC}\n"

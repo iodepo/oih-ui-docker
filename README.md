@@ -170,6 +170,13 @@ Repeat for port 443.
 ### Sample data
 
 For the search to work you will need some data that we can use.
+
+#### Workflow container
+This will install a docker container that will take care of gathering and processing the data.
+
+This will require a SSL certificate, a VHost setting in proxy.conf and an entry in the DNS to point to that VHost.
+
+#### Sample data
 @todo : how do people get that sample data???
 Unzip the sample data file (sample-solr-data) on the machine to /tmp.
 
@@ -311,20 +318,20 @@ chmod -R 777 /data/oih-ui-docker/api/solr/sample-solr-data
 
 **_WARNING_** depending on the version of Docker installed on your system, you will need to use either **_docker compose_** or **_docker-compose_**.
 
-#### for local installation
+####  installation ***without*** the workflow container
 
 ```bash
 
-docker compose up -d
-
+docker compose -f docker-compose.noWorkflow.yml up -d
 
 ```
 
-#### production installation
+####  installation ***with*** the workflow container
+**_WARNING_** do not forget to uncomment and correct the lines in the nginx/conf.d/letsencrypt_user_data.conf file
 
 ```bash
 
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.workflow.yml up -d
 
 ```
 
