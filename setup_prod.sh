@@ -227,7 +227,6 @@ else
 
 fi
 
-
 # Copy Solr data to the target directory and change its permissions (change the root with the right one)
 printf " \n${YELLOW}copying Solr data to the target directory and changing its permissions${NC}\n"
 cp -r $solrDir $installDir/api/solr/sample-solr-data/
