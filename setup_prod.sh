@@ -121,69 +121,6 @@ fi
 printf "start installation\n\n"
 
 
-# Create the .env file in the project directory
-cd $installDir
-touch $installDir/.env
-
-# Add the HOST variable to the .env file
-echo "HOST=$host" > $installDir/.env
-
-if [ "$useWorkflowContainer" = "n" ] ;then
-  dockerComposeFile="docker-compose.noWorkflow.yml"
-  printf "using ${YELLOW}$dockerComposeFile${NC}\n"
-else
-  dockerComposeFile="docker-compose.workflow.yml"
-
-  #copy the old file and add a date to the name
-  cp $installDir/nginx/conf.d/letsencrypt_user_data.conf $installDir/nginx/conf.d/letsencrypt_user_data.conf_$(date +%Y%m%d%H%M%S)
-
-  #add the correct lines for the SSL certificates
-  #our current ip
-  localIp=$(ifconfig -a | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep 192 | grep -v 255 | head -1)
-  workflowHost="workflow.${host}"
-  echo "LETSENCRYPT_STANDALONE_CERTS=('workflow')" >> $installDir/nginx/conf.d/letsencrypt_user_data.conf
-  echo "LETSENCRYPT_workflow_HOST=('$workflowHost')" >> $installDir/nginx/conf.d/letsencrypt_user_data.conf
-
-  #copy the old proxy file and add a date to the name
-  cp $installDir/nginx/conf.d/proxy.conf $installDir/nginx/conf.d/proxy.conf_$(date +%Y%m%d%H%M%S)
-
-  #add the correct lines for the nginx proxy
-  echo "server {" >> $installDir/nginx/conf.d/proxy.conf
-  echo "    server_name $workflowHost;" >> $installDir/nginx/conf.d/proxy.conf
-  echo "    listen 80;" >> $installDir/nginx/conf.d/proxy.conf
-  echo "    access_log /var/log/nginx/workflow.search.log vhost;" >> $installDir/nginx/conf.d/proxy.conf;
-  echo "    location / {" >> $installDir/nginx/conf.d/proxy.conf
-  echo "        proxy_pass          http://$localIp:3000;" >> $installDir/nginx/conf.d/proxy.conf;
-  echo "    }" >> $installDir/nginx/conf.d/proxy.conf
-  echo "}" >> $installDir/nginx/conf.d/proxy.conf
-
-  printf "using ${YELLOW}$dockerComposeFile${NC}\n"
-  printf "access workflow via ${YELLOW}https://$workflowHost${NC}\n"
-
-  #copy the old .env file and add a date to the name
-  cp $installDir/.env $installDir/.env_$(date +%Y%m%d%H%M%S)
-
-  #change the .env file, add some lines for the workflow container
-  echo "#settings for the workflow" >> $installDir/.env
-  echo "PROJECT=eco" >> $installDir/.env
-  echo "GLEANERIO_GLEANER_IMAGE=nsfearthcube/gleaner:dev_ec" >> $installDir/.env
-  echo "GLEANERIO_NABU_IMAGE=nsfearthcube/nabu:dev_eco" >> $installDir/.env
-  echo "GLEANERIO_GLEANER_CONFIG_PATH=/gleaner/gleanerconfig.yaml" >> $installDir/.env
-  echo "GLEANERIO_NABU_CONFIG_PATH=/nabu/nabuconfig.yaml" >> $installDir/.env
-  echo "GLEANERIO_LOG_PREFIX=scheduler/logs/" >> $installDir/.env
-  echo "GLEANERIO_MINIO_ADDRESS=ossapi.provisium.io" >> $installDir/.env
-  echo "GLEANERIO_MINIO_PORT=" >> $installDir/.env
-  echo "GLEANERIO_MINIO_USE_SSL=true" >> $installDir/.env
-  echo "GLEANERIO_MINIO_BUCKET=gleaner" >> $installDir/.env
-  echo "GLEANERIO_MINIO_ACCESS_KEY=minioadmin" >> $installDir/.env
-  echo "GLEANERIO_MINIO_SECRET_KEY=6EcDLmMiXsAPjc9kttAE7PMXitxrnyqxEefCYPoy" >> $installDir/.env
-  echo "GLEANERIO_HEADLESS_ENDPOINT=http://workstation.lan:9222" >> $installDir/.env
-  echo "GLEANERIO_GRAPH_URL=http://nas.lan:49153/blazegraph" >> $installDir/.env
-  echo "GLEANERIO_GRAPH_NAMESPACE=earthcube" >> $installDir/.env
-
-fi
-
-exit 0
 
 # stop and remove old containers
 printf " \n${YELLOW}stopping and removing old containers${NC}\n"
@@ -227,6 +164,71 @@ printf " \n${YELLOW}navigating to 'api' directory and fetching and checking out 
 cd $installDir/api
 git fetch
 git checkout feature/restyling
+
+# Create the .env file in the project directory
+cd $installDir
+touch $installDir/.env
+
+# Add the HOST variable to the .env file
+echo "HOST=$host" > $installDir/.env
+
+if [ "$useWorkflowContainer" = "n" ] ;then
+  dockerComposeFile="docker-compose.noWorkflow.yml"
+  printf "using ${YELLOW}$dockerComposeFile${NC}\n"
+else
+  dockerComposeFile="docker-compose.workflow.yml"
+
+  #copy the old file and add a date to the name
+  printf "make backup of ${YELLOW}letsencrypt_user_data.conf${NC}\n"
+  cp $installDir/nginx/conf.d/letsencrypt_user_data.conf $installDir/nginx/conf.d/letsencrypt_user_data.conf_$(date +%Y%m%d%H%M%S)
+
+  #add the correct lines for the SSL certificates
+  #our current ip
+  localIp=$(ifconfig -a | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep 192 | grep -v 255 | head -1)
+  workflowHost="workflow.${host}"
+  echo "LETSENCRYPT_STANDALONE_CERTS=('workflow')" >> $installDir/nginx/conf.d/letsencrypt_user_data.conf
+  echo "LETSENCRYPT_workflow_HOST=('$workflowHost')" >> $installDir/nginx/conf.d/letsencrypt_user_data.conf
+
+  #copy the old proxy file and add a date to the name
+  printf "make backup of ${YELLOW}proxy.conf${NC}\n"
+  cp $installDir/nginx/conf.d/proxy.conf $installDir/nginx/conf.d/proxy.conf_$(date +%Y%m%d%H%M%S)
+
+  #add the correct lines for the nginx proxy
+  echo "server {" >> $installDir/nginx/conf.d/proxy.conf
+  echo "    server_name $workflowHost;" >> $installDir/nginx/conf.d/proxy.conf
+  echo "    listen 80;" >> $installDir/nginx/conf.d/proxy.conf
+  echo "    access_log /var/log/nginx/workflow.search.log vhost;" >> $installDir/nginx/conf.d/proxy.conf;
+  echo "    location / {" >> $installDir/nginx/conf.d/proxy.conf
+  echo "        proxy_pass          http://$localIp:3000;" >> $installDir/nginx/conf.d/proxy.conf;
+  echo "    }" >> $installDir/nginx/conf.d/proxy.conf
+  echo "}" >> $installDir/nginx/conf.d/proxy.conf
+
+  printf "using ${YELLOW}$dockerComposeFile${NC}\n"
+  printf "access workflow via ${YELLOW}https://$workflowHost${NC}\n"
+
+  #copy the old .env file and add a date to the name
+  cp $installDir/.env $installDir/.env_$(date +%Y%m%d%H%M%S)
+
+  #change the .env file, add some lines for the workflow container
+  echo "#settings for the workflow" >> $installDir/.env
+  echo "PROJECT=eco" >> $installDir/.env
+  echo "GLEANERIO_GLEANER_IMAGE=nsfearthcube/gleaner:dev_ec" >> $installDir/.env
+  echo "GLEANERIO_NABU_IMAGE=nsfearthcube/nabu:dev_eco" >> $installDir/.env
+  echo "GLEANERIO_GLEANER_CONFIG_PATH=/gleaner/gleanerconfig.yaml" >> $installDir/.env
+  echo "GLEANERIO_NABU_CONFIG_PATH=/nabu/nabuconfig.yaml" >> $installDir/.env
+  echo "GLEANERIO_LOG_PREFIX=scheduler/logs/" >> $installDir/.env
+  echo "GLEANERIO_MINIO_ADDRESS=ossapi.provisium.io" >> $installDir/.env
+  echo "GLEANERIO_MINIO_PORT=" >> $installDir/.env
+  echo "GLEANERIO_MINIO_USE_SSL=true" >> $installDir/.env
+  echo "GLEANERIO_MINIO_BUCKET=gleaner" >> $installDir/.env
+  echo "GLEANERIO_MINIO_ACCESS_KEY=minioadmin" >> $installDir/.env
+  echo "GLEANERIO_MINIO_SECRET_KEY=6EcDLmMiXsAPjc9kttAE7PMXitxrnyqxEefCYPoy" >> $installDir/.env
+  echo "GLEANERIO_HEADLESS_ENDPOINT=http://workstation.lan:9222" >> $installDir/.env
+  echo "GLEANERIO_GRAPH_URL=http://nas.lan:49153/blazegraph" >> $installDir/.env
+  echo "GLEANERIO_GRAPH_NAMESPACE=earthcube" >> $installDir/.env
+
+fi
+
 
 # Copy Solr data to the target directory and change its permissions (change the root with the right one)
 printf " \n${YELLOW}copying Solr data to the target directory and changing its permissions${NC}\n"
