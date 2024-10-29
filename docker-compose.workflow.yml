@@ -48,6 +48,7 @@ services:
     image: "nginxproxy/acme-companion"
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
+      - ACME_CA_URI=${ACME_CA_URI}
     volumes:
       - "./nginx/conf.d/proxy.conf:/etc/nginx/conf.d/proxy.conf"
       - "./nginx/vhost.d:/etc/nginx/vhost.d"

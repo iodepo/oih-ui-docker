@@ -93,6 +93,17 @@ if [[ $url =~ $re ]]; then
   host=${BASH_REMATCH[1]}
 fi
 
+#do we want to use the staging server for the certificates?
+printf "\nDo you want to use the staging server for the certificates (y/${YELLOW}N${NC}):\n"
+read useStagingServer
+if [ "$useStagingServer" = "y" ] ;then
+  printf "using the staging server\n"
+  acmeCaUri="htts://acme-staging-v02.api.letsencrypt.org/directory"
+else
+  printf "using the production server\n"
+  acmeCaUri="htts://acme-v02.api.letsencrypt.org/directory"
+fi
+
 #do we want to install the worklfow container?
 printf "\nDo you want to install the workflow container (${YELLOW}Y${NC}/n):\n"
 read useWorkflowContainer
@@ -169,6 +180,7 @@ touch $installDir/.env
 
 # Add the HOST variable to the .env file
 echo "HOST=$host" > $installDir/.env
+echo "ACME_CA_URI=$acmeCaUri" >> $installDir/.env
 
 if [ "$useWorkflowContainer" = "n" ] ;then
   dockerComposeFile="docker-compose.noWorkflow.yml"
