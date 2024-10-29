@@ -88,7 +88,7 @@ services:
       - VIRTUAL_HOST=api.${HOST}
       - VIRTUAL_PROTO=http
       - LETSENCRYPT_HOST=api.${HOST}
-      - LETSENCRYPT_EMAIL="dev@derilinx.com"
+      - LETSENCRYPT_EMAIL="it@iode.org"
 
   web:
     restart: always
@@ -107,7 +107,7 @@ services:
       - VIRTUAL_PROTO=http
       - VIRTUAL_PORT=3000
       - LETSENCRYPT_HOST=${HOST}
-      - LETSENCRYPT_EMAIL="dev@derilinx.com"
+      - LETSENCRYPT_EMAIL="it@iode.org"
     volumes:
       - "./frontend/frontend/public:/app/public"
       - "./frontend/frontend/src:/app/src"
