@@ -120,11 +120,13 @@ else
 fi
 
 printf "\nUsage: $0 -d installDir -s solrDir -u url \n"
-printf "for more info: $0 -h \n"
+printf "for more info: $0 -h \n\n"
+printf "${RED}WARNING${NC}: this script will remove all existing docker containers, docker images, docker networks, docker volumes and the old installation directory\n\n"
 printf "\nare these the correct settings (${YELLOW}Y${NC}/n):\n"
 printf "\tinstall dir :    $installDir\n"
 printf "\tsolr test data : $solrDir\n"
 printf "\turl :            $url\n"
+printf "\tLetsencrypt :    $acmeCaUri\n"
 printf "\tworkflow :       $useWorkflowContainer\n\n"
 
 read answer4
@@ -155,6 +157,9 @@ docker images -a -q | xargs -r docker rmi
 printf " \n${YELLOW}finally cleanup Docker${NC}\n"
 docker system prune -f
 
+# remove the old installation directory
+printf " \n${YELLOW}removing the old installation directory${NC}\n"
+rm -rf $installDir
 # Clone the repository and its submodules
 printf " \n${YELLOW}cloning oih-ui-docker to $installDir${NC}\n"
 git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
@@ -212,6 +217,7 @@ else
   echo "server {" >> $installDir/nginx/vhost.d/workflow.conf
   echo "    server_name $workflowHost;" >> $installDir/nginx/vhost.d/workflow.conf
   echo "    listen 80;" >> $installDir/nginx/vhost.d/workflow.conf
+  echo "    listen 443;" >> $installDir/nginx/vhost.d/workflow.conf
   echo "    access_log /var/log/nginx/workflow.search.log vhost;" >> $installDir/nginx/vhost.d/workflow.conf
   echo "    location / {" >> $installDir/nginx/vhost.d/workflow.conf
   echo "        proxy_pass          http://$localIp:3000;" >> $installDir/nginx/vhost.d/workflow.conf
