@@ -94,18 +94,21 @@ if [[ $url =~ $re ]]; then
 fi
 
 #do we want to use the staging server for the certificates?
+# https://github.com/nginx-proxy/acme-companion/wiki/Container-configuration
 printf "\nDo you want to use the staging server for the certificates (y/${YELLOW}N${NC}):\n"
 read useStagingServer
 if [ "$useStagingServer" = "y" ] ;then
-  printf "using the staging server\n"
-  acmeCaUri="htts://acme-staging-v02.api.letsencrypt.org/directory"
+  printf "using the Letsencrypt staging server\n"
+  acmeCaUri="https://acme-staging-v02.api.letsencrypt.org/directory"
 else
-  printf "using the production server\n"
-  acmeCaUri="htts://acme-v02.api.letsencrypt.org/directory"
+  printf "using the Letsencrypt production server\n"
+  acmeCaUri="https://acme-v02.api.letsencrypt.org/directory"
 fi
 
 #do we want to install the worklfow container?
 printf "\nDo you want to install the workflow container (${YELLOW}Y${NC}/n):\n"
+printf " if you enter 'y' a new docker container will be installed for the workflow\n"
+printf " this will enable you to recreate the complete graph using the info from ODISCat\n"
 read useWorkflowContainer
 if [ "$useWorkflowContainer" = "n" ] ;then
   printf "no workflow container will be installed\n"
