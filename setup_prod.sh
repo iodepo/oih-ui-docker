@@ -96,6 +96,8 @@ fi
 #do we want to use the staging server for the certificates?
 # https://github.com/nginx-proxy/acme-companion/wiki/Container-configuration
 printf "\nDo you want to use the staging server for the certificates (y/${YELLOW}N${NC}):\n"
+printf " using the staging server will provide you with certificates that are not valid\n"
+printf " using the production server will limit you in how many times you can try to install everything\n"
 read useStagingServer
 if [ "$useStagingServer" = "y" ] ;then
   printf "using the Letsencrypt staging server\n"
@@ -202,19 +204,19 @@ else
   echo "LETSENCRYPT_STANDALONE_CERTS=('workflow')" >> $installDir/nginx/conf.d/letsencrypt_user_data.conf
   echo "LETSENCRYPT_workflow_HOST=('$workflowHost')" >> $installDir/nginx/conf.d/letsencrypt_user_data.conf
 
-  #copy the old proxy file and add a date to the name
-  printf "make backup of ${YELLOW}proxy.conf${NC}\n"
-  cp $installDir/nginx/conf.d/proxy.conf $installDir/nginx/conf.d/proxy.conf_$(date +%Y%m%d%H%M%S)
+  #make a new vhost file
+  printf "make vhost file ${YELLOW}workflow.conf${NC}\n"
+  #cp $installDir/nginx/conf.d/proxy.conf $installDir/nginx/conf.d/proxy.conf_$(date +%Y%m%d%H%M%S)
 
-  #add the correct lines for the nginx proxy
-  echo "server {" >> $installDir/nginx/conf.d/proxy.conf
-  echo "    server_name $workflowHost;" >> $installDir/nginx/conf.d/proxy.conf
-  echo "    listen 80;" >> $installDir/nginx/conf.d/proxy.conf
-  echo "    access_log /var/log/nginx/workflow.search.log vhost;" >> $installDir/nginx/conf.d/proxy.conf;
-  echo "    location / {" >> $installDir/nginx/conf.d/proxy.conf
-  echo "        proxy_pass          http://$localIp:3000;" >> $installDir/nginx/conf.d/proxy.conf;
-  echo "    }" >> $installDir/nginx/conf.d/proxy.conf
-  echo "}" >> $installDir/nginx/conf.d/proxy.conf
+  #add the correct lines for the workflow vhost
+  echo "server {" >> $installDir/nginx/vhost.d/workflow.conf
+  echo "    server_name $workflowHost;" >> $installDir/nginx/vhost.d/workflow.conf
+  echo "    listen 80;" >> $installDir/nginx/vhost.d/workflow.conf
+  echo "    access_log /var/log/nginx/workflow.search.log vhost;" >> $installDir/nginx/vhost.d/workflow.conf
+  echo "    location / {" >> $installDir/nginx/vhost.d/workflow.conf
+  echo "        proxy_pass          http://$localIp:3000;" >> $installDir/nginx/vhost.d/workflow.conf
+  echo "    }" >> $installDir/nginx/vhost.d/workflow.conf
+  echo "}" >> $installDir/nginx/vhost.d/workflow.conf
 
   printf "using ${YELLOW}$dockerComposeFile${NC}\n"
   printf "access workflow via ${YELLOW}https://$workflowHost${NC}\n"

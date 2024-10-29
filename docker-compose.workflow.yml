@@ -183,6 +183,10 @@ services:
       - GLEANERIO_GLEANER_CONFIG_PATH=${GLEANERIO_GLEANER_CONFIG_PATH:-/configs/gleaner/gleanerconfig.yaml}
       - GLEANERIO_NABU_DOCKER_CONFIG=${GLEANERIO_NABU_DOCKER_CONFIG:-nabu}
       - GLEANERIO_GLEANER_DOCKER_CONFIG=${GLEANERIO_GLEANER_DOCKER_CONFIG:-gleaner}
+      - VIRTUAL_HOST=workflow.${HOST}
+      - VIRTUAL_PROTO=http
+      - LETSENCRYPT_HOST=workflow.${HOST}
+      - LETSENCRYPT_EMAIL="it@iode.org"
     ports:
       - 3000:3000
     networks:
