@@ -155,7 +155,7 @@ At this point you can test this using [netcat](https://linux.die.net/man/1/nc).
 On this machine:
 
 ```bash
-netcat -80
+netcat -l -p 80
 ```
 
 On another machine:
