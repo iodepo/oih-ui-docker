@@ -1,9 +1,9 @@
 [submodule "indexer"]
 	path = indexer
-	url = git@github.com:iodepo/oih-ui.git
+	url = https://github.com/iodepo/oih-ui.git
 [submodule "frontend"]
 	path = frontend
-	url = git@github.com:iodepo/oih-ui.git
+	url = https://github.com/iodepo/oih-ui.git
 [submodule "api"]
 	path = api
-	url = git@github.com:iodepo/oih-ui.git
+	url = https://github.com/iodepo/oih-ui.git

@@ -162,7 +162,9 @@ printf " \n${YELLOW}removing the old installation directory${NC}\n"
 rm -rf $installDir
 # Clone the repository and its submodules
 printf " \n${YELLOW}cloning oih-ui-docker to $installDir${NC}\n"
-git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
+#this would require a key
+# git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
+git clone --recurse-submodules https://github.com/iodepo/oih-ui-docker.git $installDir
 
 # Navigate to the project directory
 cd $installDir
