@@ -152,3 +152,6 @@ services:
       #- "./api/solr:/var/solr/data/ckan/"
       #- "/data/solr-data:/var/solr/data/ckan/data"
       #- "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
+    command:
+      - solr-precreate
+      - ckan
