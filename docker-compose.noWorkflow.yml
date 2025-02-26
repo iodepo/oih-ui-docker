@@ -146,12 +146,14 @@ services:
       - SOLR_JAVA_MEM=-Xms1g -Xmx1g
       - SOLR_OPTS=-Dlog4j2.formatMsgNoLookups=true
     volumes:
-      - type: bind
-        source: /data/solr-data
-        target: /var/solr/data/ckan/data
+      #- type: bind
+      #  source: /data/solr-data
+      #  target: /var/solr/data/ckan/data
       #- "./api/solr:/var/solr/data/ckan/"
       #- "/data/solr-data:/var/solr/data/ckan/data"
       #- "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
+      - /tmp/oih-ui/solr/conf:/oih_ckan_config/conf
     command:
       - solr-precreate
-      - gettingstarted
+      - ckan
+      - /oih_ckan_config

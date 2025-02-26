@@ -166,6 +166,12 @@ printf " \n${YELLOW}cloning oih-ui-docker to $installDir${NC}\n"
 # git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
 git clone --recurse-submodules https://github.com/iodepo/oih-ui-docker.git $installDir
 
+# clone the oih-ui repo, only needed to startup
+printf " \n${YELLOW}cloning oih-ui to /tmp${NC}\n"
+#this would require a key
+# git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
+git clone https://github.com/iodepo/oih-ui.git /tmp/
+
 # Navigate to the project directory
 cd $installDir
 
