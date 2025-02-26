@@ -12,8 +12,8 @@ networks:
       com.docker.network.driver.mtu: 1400
   solr:
     internal: true
-  solrbridge:
-    driver: host
+  #solrbridge:
+  #  driver: host
 
 services:
   nginx-proxy:
