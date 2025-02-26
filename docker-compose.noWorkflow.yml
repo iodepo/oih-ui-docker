@@ -145,6 +145,6 @@ services:
       - SOLR_JAVA_MEM=-Xms1g -Xmx1g
       - SOLR_OPTS=-Dlog4j2.formatMsgNoLookups=true
     volumes:
-      - "./api/solr:/var/solr/data/ckan/"
-      - solr-data:/var/solr/data/ckan/data:rw
-      - "./api/solr/sample-solr-datacd /:/var/solr/data/ckan/data/index"
+      #- "./api/solr:/var/solr/data/ckan/"
+      #- solr-data:/var/solr/data/ckan/data:rw
+      - "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
