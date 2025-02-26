@@ -259,7 +259,7 @@ chmod -R 777 $installDir/api/solr/sample-solr-data/
 
 # Start the Docker containers in production mode
 printf " \n${YELLOW}starting the Docker containers in production mode${NC}\n"
-pose -f $dockerComposeFile up -d --remove-orphans
+docker-compose -f $dockerComposeFile up -d --remove-orphans
 
 # Wait for 10 seconds before continue
 printf " \n${YELLOW}sleep for 10s${NC}\n"
