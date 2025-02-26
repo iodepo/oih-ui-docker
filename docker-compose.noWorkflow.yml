@@ -147,4 +147,4 @@ services:
     volumes:
       #- "./api/solr:/var/solr/data/ckan/"
       #- solr-data:/var/solr/data/ckan/data:rw
-      - "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
+      - "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/"
