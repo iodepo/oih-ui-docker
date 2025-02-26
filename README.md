@@ -68,6 +68,7 @@ sudo apt install python
 
 ```bash
 sudo apt install docker
+sudo apt install docker-compose
 ```
 
 to be sure that Docker is using your /data directory for it's overlays, add following to /etc/docker/daemon.js and restart docker daemon
