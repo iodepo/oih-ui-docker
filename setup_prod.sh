@@ -157,6 +157,18 @@ docker images -a -q | xargs -r docker rmi
 printf " \n${YELLOW}finally cleanup Docker${NC}\n"
 docker system prune -f
 
+# clone the oih-ui repo, only needed to startup
+printf " \n${YELLOW}cloning oih-ui to /tmp${NC}\n"
+#this would require a key
+# git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
+git clone https://github.com/iodepo/oih-ui.git /tmp/
+
+# fetch the latest changes, and check out the 'feature/restyling' branch
+printf " \n${YELLOW}fetching latest changes and checking out the 'feature/restyling' branch${NC}\n"
+cd /tmp/oih-ui
+git fetch
+git checkout feature/restyling
+
 # remove the old installation directory
 printf " \n${YELLOW}removing the old installation directory${NC}\n"
 rm -rf $installDir
@@ -165,12 +177,6 @@ printf " \n${YELLOW}cloning oih-ui-docker to $installDir${NC}\n"
 #this would require a key
 # git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
 git clone --recurse-submodules https://github.com/iodepo/oih-ui-docker.git $installDir
-
-# clone the oih-ui repo, only needed to startup
-printf " \n${YELLOW}cloning oih-ui to /tmp${NC}\n"
-#this would require a key
-# git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
-git clone https://github.com/iodepo/oih-ui.git /tmp/
 
 # Navigate to the project directory
 cd $installDir
