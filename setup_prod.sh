@@ -186,6 +186,12 @@ cd $installDir/api
 git fetch
 git checkout feature/restyling
 
+# Return to the main directory and navigate to the 'indexer' directory, fetch the latest changes, and check out the 'feature/restyling' branch
+printf " \n${YELLOW}navigating to 'indexer' directory and fetching and checking out the 'feature/restyling' branch${NC}\n"
+cd $installDir/indexer
+git fetch
+git checkout feature/restyling
+
 # Create the .env file in the project directory
 cd $installDir
 touch $installDir/.env
