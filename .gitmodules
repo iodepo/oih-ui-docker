@@ -7,6 +7,3 @@
 [submodule "api"]
 	path = api
 	url = https://github.com/iodepo/oih-ui.git
-[submodule "solr"]
-	path = solr
-	url = https://github.com/iodepo/oih-ui.git
