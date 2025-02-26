@@ -132,6 +132,7 @@ services:
   solr:
     restart: always
     image: "solr:8"
+    container_name: "oih-ui-docker_solr-1"
     ports:
       - "8983:8983"
     logging:
@@ -146,5 +147,5 @@ services:
       - SOLR_OPTS=-Dlog4j2.formatMsgNoLookups=true
     volumes:
       #- "./api/solr:/var/solr/data/ckan/"
-      - /data/solr-data:/var/solr/data/ckan/data:rw
+      - "/data/solr-data:/var/solr/data/ckan/data"
       #- "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
