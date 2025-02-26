@@ -11,7 +11,7 @@ helpFunction()
    echo ""
    echo "Usage: $0 -d installDir -s solrDir -u url"
    echo -e "\t-d complete path to where we will install everything (default /data/oih-ui-docker/)"
-   echo -e "\t-s complete path to the SOLR test data (default /data/solr_data/)"
+   #echo -e "\t-s complete path to the SOLR test data (default /data/solr_data/)"
    echo -e "\t-u url of the search interface (default https://devsearch.oceaninfohub.org/)"
    echo -e "\t-h print this help"
    exit 1 # Exit script after printing help
@@ -21,7 +21,7 @@ while getopts "d:s:u:h" opt
 do
    case "$opt" in
       d ) installDir="$OPTARG" ;;
-      s ) solrDir="$OPTARG" ;;
+      #s ) solrDir="$OPTARG" ;;
       u ) url="$OPTARG" ;;
       ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
    esac
@@ -33,10 +33,10 @@ if [ -z "$installDir" ]; then
   printf "using default installation directory: $installDir \n"
 fi
 
-if [ -z "$solrDir" ]; then
-  solrDir='/data/solr_data/'
-  printf "using default solr directory: $solrDir \n"
-fi
+#if [ -z "$solrDir" ]; then
+  #solrDir='/data/solr_data/'
+  #printf "using default solr directory: $solrDir \n"
+#fi
 
 if [ -z "$url" ]; then
   url='https://devsearch.oceaninfohub.org/'
@@ -64,20 +64,20 @@ else
 fi
 
 #solrDir must be a complete path
-if [[ "$solrDir" =~ ^\/[[:alnum:]] && "$solrDir" =~ [[:alnum:]]\/$ ]]; then
-  printf "$solrDir is a valid complete path\n"
+#if [[ "$solrDir" =~ ^\/[[:alnum:]] && "$solrDir" =~ [[:alnum:]]\/$ ]]; then
+  #printf "$solrDir is a valid complete path\n"
 
-  #solrDir must exist
-  if [ -d $solrDir ]; then
-    printf "$solrDir exists\n"
-  else
-    printf "${RED}ERROR${NC}: $solrDir does not exist\n"
-    exit 5
-  fi
-else
-  printf "${RED}ERROR${NC}: $solrDir is not a valid complete path, should be something like /data/solr_data/\n"
-  exit 3
-fi
+  ##solrDir must exist
+  #if [ -d $solrDir ]; then
+    #printf "$solrDir exists\n"
+  #else
+    #printf "${RED}ERROR${NC}: $solrDir does not exist\n"
+    #exit 5
+  #fi
+#else
+  #printf "${RED}ERROR${NC}: $solrDir is not a valid complete path, should be something like /data/solr_data/\n"
+  #exit 3
+#fi
 
 #url must be a correct url
 if [[ "$url" =~ ^https?\:\/\/([[:alnum:]]+\.)+[[:alnum:]]+\/?$ ]]; then
@@ -124,7 +124,7 @@ printf "for more info: $0 -h \n\n"
 printf "${RED}WARNING${NC}: this script will remove all existing docker containers, docker images, docker networks, docker volumes and the old installation directory\n\n"
 printf "\nare these the correct settings (${YELLOW}Y${NC}/n):\n"
 printf "\tinstall dir :    $installDir\n"
-printf "\tsolr test data : $solrDir\n"
+#printf "\tsolr test data : $solrDir\n"
 printf "\turl :            $url\n"
 printf "\tLetsencrypt :    $acmeCaUri\n"
 printf "\tworkflow :       $useWorkflowContainer\n\n"
@@ -161,7 +161,8 @@ docker system prune -f
 printf " \n${YELLOW}cloning oih-ui to /tmp${NC}\n"
 #this would require a key
 # git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
-git clone https://github.com/iodepo/oih-ui.git /tmp/
+rm -rf /tmp/oih-ui
+git clone https://github.com/iodepo/oih-ui.git /tmp/oih-ui
 
 # fetch the latest changes, and check out the 'feature/restyling' branch
 printf " \n${YELLOW}fetching latest changes and checking out the 'feature/restyling' branch${NC}\n"
@@ -271,9 +272,9 @@ else
 fi
 
 # Copy Solr data to the target directory and change its permissions (change the root with the right one)
-printf " \n${YELLOW}copying Solr data to the target directory and changing its permissions${NC}\n"
-cp -r $solrDir $installDir/api/solr/sample-solr-data/
-chmod -R 777 $installDir/api/solr/sample-solr-data/
+#printf " \n${YELLOW}copying Solr data to the target directory and changing its permissions${NC}\n"
+#cp -r $solrDir $installDir/api/solr/sample-solr-data/
+#chmod -R 777 $installDir/api/solr/sample-solr-data/
 
 # Start the Docker containers in production mode
 printf " \n${YELLOW}starting the Docker containers in production mode${NC}\n"
