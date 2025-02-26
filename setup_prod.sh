@@ -259,7 +259,7 @@ chmod -R 777 $installDir/api/solr/sample-solr-data/
 
 # Start the Docker containers in production mode
 printf " \n${YELLOW}starting the Docker containers in production mode${NC}\n"
-docker compose -f $dockerComposeFile up -d --remove-orphans
+pose -f $dockerComposeFile up -d --remove-orphans
 
 # Wait for 10 seconds before continue
 printf " \n${YELLOW}sleep for 10s${NC}\n"
@@ -278,7 +278,7 @@ echo -ne "\r\033[K"
 
 # Change permissions for the Solr directory
 printf " \n${YELLOW}changing permissions for the Solr directory${NC}\n"
-docker compose -f $dockerComposeFile run -u root solr chown solr:solr /var/solr/data/ckan/data
+docker-compose -f $dockerComposeFile run -u root solr chown solr:solr /var/solr/data/ckan/data
 
 # Restart the containers
 printf " \n${YELLOW}restarting the containers${NC}\n"
