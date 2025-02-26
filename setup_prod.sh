@@ -352,5 +352,5 @@ printf " \n${YELLOW}these dockers are running now${NC}\n"
 docker ps
 
 # Print a success message
-printf " \n${YELLOW}Installation completed successfully! All should be available soon on $url ${NC}\n"
+printf " \n${YELLOW}Installation completed. If all went well everything should be available soon on $url ${NC}\n"
 
