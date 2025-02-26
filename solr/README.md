@@ -1,0 +1,1 @@
+this is needed to get the config for solr
