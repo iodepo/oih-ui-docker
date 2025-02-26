@@ -154,4 +154,4 @@ services:
       #- "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
     command:
       - solr-precreate
-      - ckan
+      - gettingstarted
