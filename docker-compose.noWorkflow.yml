@@ -139,6 +139,7 @@ services:
       options:
         max-size: 50m
     networks:
+      default:
       solr:
     environment:
       - SOLR_JAVA_MEM=-Xms1g -Xmx1g
