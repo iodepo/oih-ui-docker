@@ -157,7 +157,7 @@ services:
       #- "./api/solr:/var/solr/data/ckan/"
       #- "/data/solr-data:/var/solr/data/ckan/data"
       #- "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
-      - /tmp/oih-ui/solr/conf:/oih_ckan_config/conf
+      - /tmp/oih-server-profile/server/datavols/conf:/oih_ckan_config/conf
     command:
       - solr-precreate
       - ckan
