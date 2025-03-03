@@ -175,10 +175,10 @@ git clone https://github.com/fils/oih-server-profile /tmp/oih-server-profile
 printf " \n${YELLOW}removing the old installation directory${NC}\n"
 rm -rf $installDir
 # Clone the repository and its submodules
-printf " \n${YELLOW}cloning odis to $installDir${NC}\n"
+printf " \n${YELLOW}cloning oih-ui-docker to $installDir${NC}\n"
 #this would require a key
 # git clone --recurse-submodules git@github.com:iodepo/odis.git $installDir
-git clone --recurse-submodules https://github.com/iodepo/odis.git $installDir
+git clone --recurse-submodules https://github.com/iodepo/oih-ui-docker.git $installDir
 
 # Navigate to the project directory
 cd $installDir
