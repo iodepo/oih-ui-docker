@@ -23,7 +23,7 @@ services:
       options:
         max-size: 50m
     image: "nginxproxy/nginx-proxy:latest"
-    container_name: "oih-ui-docker_nginx-proxy-1"
+    container_name: "odis_nginx-proxy-1"
     networks:
       default:
         aliases:
@@ -43,7 +43,7 @@ services:
   letsencrypt-nginx-proxy-companion:
     restart: always
     image: "nginxproxy/acme-companion"
-    container_name: "oih-ui-docker_letsencrypt-nginx-proxy-companion-1"
+    container_name: "odis_letsencrypt-nginx-proxy-companion-1"
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
       - ACME_CA_URI=${ACME_CA_URI}
@@ -72,7 +72,7 @@ services:
     build:
       context: ./api/api
       dockerfile: Dockerfile
-    container_name: "oih-ui-docker_api-1"
+    container_name: "odis_api-1"
     logging:
       driver: "json-file"
       options:
@@ -95,7 +95,7 @@ services:
     build:
       context: ./frontend/frontend
       dockerfile: Dockerfile
-    container_name: "oih-ui-docker_web-1"
+    container_name: "odis_web-1"
     logging:
       driver: "json-file"
       options:
@@ -119,7 +119,7 @@ services:
     build:
       context: ./indexer/indexer
       dockerfile: Dockerfile
-    container_name: "oih-ui-docker_indexer-1"
+    container_name: "odis_indexer-1"
     logging:
       driver: "json-file"
       options:
@@ -137,7 +137,7 @@ services:
   solr:
     restart: always
     image: "library/solr:8.8"
-    container_name: "oih-ui-docker_solr-1"
+    container_name: "odis_solr-1"
     ports:
       - "8983:8983"
     logging:
