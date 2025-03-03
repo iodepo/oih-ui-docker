@@ -90,10 +90,12 @@ else
 fi
 
 #clean the url, remove http(s)://
-re='^https?\:\/\/(([[:alnum:]]+\.)+[[:alnum:]]+)\/?$'
-if [[ $url =~ $re ]]; then
+#re='^https?\:\/\/(([[:alnum:]]+\.)+[[:alnum:]]+)\/?$'
+regex='https?://([-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|])'
+if [[ $url =~ $regex ]]; then
   host=${BASH_REMATCH[1]}
 fi
+printf "${YELLOW}host${NC}: $host will be used\n"
 
 #do we want to use the staging server for the certificates?
 # https://github.com/nginx-proxy/acme-companion/wiki/Container-configuration
