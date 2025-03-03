@@ -136,7 +136,7 @@ services:
 
   solr:
     restart: always
-    image: "solr:8"
+    image: "library/solr:8.8"
     container_name: "oih-ui-docker_solr-1"
     ports:
       - "8983:8983"
@@ -150,15 +150,9 @@ services:
     environment:
       - SOLR_JAVA_MEM=-Xms1g -Xmx1g
       - SOLR_OPTS=-Dlog4j2.formatMsgNoLookups=true
-    volumes:
-      #- type: bind
-      #  source: /data/solr-data
-      #  target: /var/solr/data/ckan/data
-      #- "./api/solr:/var/solr/data/ckan/"
-      - "/data/solr-data:/var/solr/data/ckan/data"
-      #- "./api/solr/sample-solr-data/:/var/solr/data/ckan/data/index"
-      - "/tmp/oih-server-profile/server/datavols/conf:/oih_ckan_config/conf"
     command:
       - solr-precreate
       - ckan
-      - /oih_ckan_config
+      - /var/solrconf
+    volumes:
+      - "/tmp/oih-server-profile/server/datavols/conf:/var/solrconf/"
