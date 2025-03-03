@@ -10,7 +10,7 @@ helpFunction()
 {
    echo ""
    echo "Usage: $0 -d installDir -s solrDir -u url"
-   echo -e "\t-d complete path to where we will install everything (default /data/oih-ui-docker/)"
+   echo -e "\t-d complete path to where we will install everything (default /data/odis/)"
    #echo -e "\t-s complete path to the SOLR test data (default /data/solr_data/)"
    echo -e "\t-u url of the search interface (default https://devsearch.oceaninfohub.org/)"
    echo -e "\t-h print this help"
@@ -29,7 +29,7 @@ done
 
 # use default values if not set
 if [ -z "$installDir" ]; then
-  installDir='/data/oih-ui-docker/'
+  installDir='/data/odis/'
   printf "using default installation directory: $installDir \n"
 fi
 
@@ -59,7 +59,7 @@ if [[ "$installDir" =~ ^\/[[:alnum:]] && "$installDir" =~ [[:alnum:]]\/$ ]]; the
   fi
 
 else
-  printf "${RED}ERROR${NC}: $installDir is not a valid complete path, should be something like /data/oih-ui-docker/\n"
+  printf "${RED}ERROR${NC}: $installDir is not a valid complete path, should be something like /data/odis/\n"
   exit 2
 fi
 
@@ -158,26 +158,27 @@ printf " \n${YELLOW}finally cleanup Docker${NC}\n"
 docker system prune -f
 
 # clone the oih-ui repo, only needed to startup
-printf " \n${YELLOW}cloning oih-ui to /tmp${NC}\n"
-#this would require a key
-# git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
-rm -rf /tmp/oih-ui
-git clone https://github.com/iodepo/oih-ui.git /tmp/oih-ui
+#printf " \n${YELLOW}cloning oih-ui to /tmp${NC}\n"
+printf " \n${YELLOW}cloning oih-server-profile to /tmp${NC}\n"
+#rm -rf /tmp/oih-ui
+rm -rf /tmp/oih-server-profile
+#git clone https://github.com/iodepo/oih-ui.git /tmp/oih-ui
+git clone https://github.com/fils/oih-server-profile /tmp/oih-server-profile
 
 # fetch the latest changes, and check out the 'feature/restyling' branch
-printf " \n${YELLOW}fetching latest changes and checking out the 'feature/restyling' branch${NC}\n"
-cd /tmp/oih-ui
-git fetch
-git checkout feature/restyling
+#printf " \n${YELLOW}fetching latest changes and checking out the 'feature/restyling' branch${NC}\n"
+#cd /tmp/oih-server-profile
+#git fetch
+#git checkout feature/restyling
 
 # remove the old installation directory
 printf " \n${YELLOW}removing the old installation directory${NC}\n"
 rm -rf $installDir
 # Clone the repository and its submodules
-printf " \n${YELLOW}cloning oih-ui-docker to $installDir${NC}\n"
+printf " \n${YELLOW}cloning odis to $installDir${NC}\n"
 #this would require a key
-# git clone --recurse-submodules git@github.com:iodepo/oih-ui-docker.git $installDir
-git clone --recurse-submodules https://github.com/iodepo/oih-ui-docker.git $installDir
+# git clone --recurse-submodules git@github.com:iodepo/odis.git $installDir
+git clone --recurse-submodules https://github.com/iodepo/odis.git $installDir
 
 # Navigate to the project directory
 cd $installDir
@@ -296,8 +297,8 @@ sleep 10 &
 echo -ne "\r\033[K"
 
 # Change permissions for the Solr directory
-printf " \n${YELLOW}changing permissions for the Solr directory${NC}\n"
-docker-compose -f $dockerComposeFile run -u root solr chown solr:solr /var/solr/data/ckan/data
+#printf " \n${YELLOW}changing permissions for the Solr directory${NC}\n"
+#docker-compose -f $dockerComposeFile run -u root solr chown solr:solr /var/solr/data/ckan/data
 
 # Restart the containers
 printf " \n${YELLOW}restarting the containers${NC}\n"
@@ -319,7 +320,7 @@ echo -ne "\r\033[K"
 
 #get the certifcates from the Letsencrypt container
 printf " \n${YELLOW}restart the Let's encrypt container${NC}\n"
-docker restart oih-ui-docker-letsencrypt-nginx-proxy-companion-1
+docker restart odis-letsencrypt-nginx-proxy-companion-1
 printf " \n${YELLOW}sleep for 20s${NC}\n"
 sleep 20 &
   PID=$!
@@ -336,7 +337,7 @@ echo -ne "\r\033[K"
 
 #restart the nginx-proxy and web containers
 printf " \n${YELLOW}restart the nginx-proxy and web containers${NC}\n"
-docker restart oih-ui-docker-nginx-proxy-1
+docker restart odis-nginx-proxy-1
 printf " \n${YELLOW}sleep for 20s${NC}\n"
 sleep 20 &
   PID=$!
@@ -351,7 +352,7 @@ sleep 20 &
 #erase the progress bar
 echo -ne "\r\033[K"
 
-docker restart oih-ui-docker-web-1
+docker restart odis-web-1
 printf " \n${YELLOW}sleep for 40s${NC}\n"
 sleep 40 &
   PID=$!
