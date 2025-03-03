@@ -102,6 +102,8 @@ services:
         max-size: 50m
     networks:
       default:
+    ports:
+      - "3000:3000"
     environment:
       - REACT_APP_DATA_SERVICE_URL=https://api.${HOST}
       - VIRTUAL_HOST=${HOST}
