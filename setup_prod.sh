@@ -80,7 +80,9 @@ fi
 #fi
 
 #url must be a correct url
-if [[ "$url" =~ ^https?\:\/\/([[:alnum:]]+\.)+[[:alnum:]]+\/?$ ]]; then
+regex='https?://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|]'
+if [[ $url =~ $regex ]]; then
+#if [[ "$url" =~ ^https?\:\/\/(([[:alnum:]]\-)+\.)+[[:alnum:]]+\/?$ ]]; then
   printf "$url is a valid url\n"
 else
   printf "${RED}ERROR${NC}: $url is not a valid url, should be something like http(s)://devsearch.oceaninfohub.org/\n"
@@ -320,7 +322,7 @@ echo -ne "\r\033[K"
 
 #get the certifcates from the Letsencrypt container
 printf " \n${YELLOW}restart the Let's encrypt container${NC}\n"
-docker restart odis-letsencrypt-nginx-proxy-companion-1
+docker restart odis_letsencrypt-nginx-proxy-companion-1
 printf " \n${YELLOW}sleep for 20s${NC}\n"
 sleep 20 &
   PID=$!
@@ -337,7 +339,7 @@ echo -ne "\r\033[K"
 
 #restart the nginx-proxy and web containers
 printf " \n${YELLOW}restart the nginx-proxy and web containers${NC}\n"
-docker restart odis-nginx-proxy-1
+docker restart odis_nginx-proxy-1
 printf " \n${YELLOW}sleep for 20s${NC}\n"
 sleep 20 &
   PID=$!
@@ -352,7 +354,7 @@ sleep 20 &
 #erase the progress bar
 echo -ne "\r\033[K"
 
-docker restart odis-web-1
+docker restart odis_web-1
 printf " \n${YELLOW}sleep for 40s${NC}\n"
 sleep 40 &
   PID=$!
