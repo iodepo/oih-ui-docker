@@ -31,6 +31,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "3000:80"
     volumes:
       - "./nginx/conf.d/proxy.conf:/etc/nginx/conf.d/proxy.conf"
       - "./nginx/vhost.d:/etc/nginx/vhost.d"
